@@ -6,7 +6,7 @@
 	phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 	
 	// SSL!
-	phpCAS::setCasServerCACert("./cas-auth.rpi.edu");
+	phpCAS::setCasServerCACert("./cas/cas-auth.rpi.edu");
 		
 	//If not authenticated then do it
 	if (!(phpCAS::isAuthenticated()))

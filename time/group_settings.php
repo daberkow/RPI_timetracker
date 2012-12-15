@@ -56,7 +56,7 @@
         <title class = "title">Time Tracker Group Settings</title>
         <link rel="stylesheet" type="text/css" href="./style.css"/>
         <link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
-        <script src="./jquery-1.6.2.min.js"></script> <!--Only used for easy ajax requests-->
+        <script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
         <script src="./core.js"></script>
 	<!--<script>
 	    Group = "<?PHP //echo urlencode($_REQUEST['group']); ?>";
@@ -146,7 +146,7 @@
 			order.abort();
 		    }
 		    lastHit = new Date().getTime();
-		    $('#'+passedFillBox).html("<img src='./8-1.gif'/>");
+		    $('#'+passedFillBox).html("<img src='./images/8-1.gif'/>");
 		    order = $.ajax({
 			type: 'get',
 			url: './search.php',

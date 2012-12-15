@@ -21,7 +21,7 @@
 	<title class = "title">Time Tracker Group</title>
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
-	<script src="./jquery-1.6.2.min.js"></script> <!--Only used for easy ajax requests-->
+	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
 	<script src="./core.js"></script>
     </head>
     <body>

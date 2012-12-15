@@ -24,7 +24,7 @@ div.logo
   background-repeat: no-repeat;
   width: 45px;
   height: 43px;
-  background-image:url("./rpi.jpg");
+  background-image:url("./images/rpi.jpg");
   float: left;
 }
 
