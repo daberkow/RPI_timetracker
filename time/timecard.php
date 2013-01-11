@@ -15,7 +15,7 @@
 	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
 	<script src="./core.js"></script>
     </head>
-    <body>
+    <body onload='loadPage();'>
 	<div id="main">
 	    <div id="title">
 		<div class="logo"></div>

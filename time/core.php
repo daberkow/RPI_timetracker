@@ -475,7 +475,13 @@ class timetracker {
 		
 		echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); </script>";
 		echo "<div style='margin: auto;'>";
-		echo "<div style='width: 100%; height: 40px; margin: auto;'><span style='width: 40px; border-width: 1px; border-style:solid; padding-right:10px;' onclick='lastweek();'><--</span>Saved Templates: <select style='width: 100px;'></select><button style='margin-left:25%;'>Save Time Card</button><span id='pageStatus' style='display: block-inline; height: 100%; width: 3%;'>Synced</span><span style='margin-left: 12%;'>Save As: <input type='text'/><input type='submit'></span><span style='width: 40px; border-width: 1px; border-style:solid; padding-right:10px;' onclick='nextweek();'>--></span></div>";
+		echo "<div style='width: 100%; height: 40px; margin: auto;'><span style='width: 40px; border-width: 1px; border-style:solid; padding-right:10px;' onclick='lastweek();'><--</span>Saved Templates: <select id='templates' style='width: 150px;' onclick='loadTemplate()'><option>------</option>";
+		$templates = database_helper::db_return_array("SELECT * FROM `templates` WHERE `owner`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1");
+		foreach($templates as $template)
+		{
+			echo "<option value=" . $template['id'] . ">" .  $template['name'] . "</option>";
+		}
+		echo "</select><button style='margin-left:20%;'>Save Time Card</button><span id='pageStatus' style='display: block-inline; height: 100%; width: 3%;'>Synced</span><span style='margin-left: 12%;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><span style='width: 40px; border-width: 1px; border-style:solid; padding-right:10px;' onclick='nextweek();'>--></span></div>";
 		echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 		for($i = 1; $i < 15; $i++)
 		{
@@ -491,14 +497,14 @@ class timetracker {
 					{
 						case 0:
 							echo "<div>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','0');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_0'>12:00AM</span>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','2');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>12:30AM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_0'>12:00AM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>12:30AM</span>";
 							echo "</div>";
 							break;
 						default:
 							echo "<div>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','0');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_0'>$k:00AM</span>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','2');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>$k:30AM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_0'>$k:00AM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>$k:30AM</span>";
 							echo "</div>";
 							break;
 					}
@@ -507,14 +513,14 @@ class timetracker {
 					{
 						case 12:
 							echo "<div>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','0');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_1'>12:00PM</span>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','2');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>12:30PM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_0'>12:00PM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>12:30PM</span>";
 							echo "</div>";
 							break;
 						default:
 							echo "<div>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','0');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_1'>" . ($k - 12) . ":00PM</span>";
-							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','2');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
+							echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour_" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
 							echo "</div>";
 							break;
 					}
@@ -527,6 +533,66 @@ class timetracker {
 			echo "</div>";
 		}
 		echo "</div></form>";
+	}
+	public function checkOverlap($element1_Start, $element1_stop, $element2_start, $element2_end)
+	{//this is incorrect
+		if ($element1_Start > $element2_start)
+		{
+		    //the start time is before the row we have
+		    if ($element1_Start > $element2_end)
+		    {
+			//the end of the time being added is also before the row, so we are clear
+			return 0;
+		    }else{
+			if ($element1_Start == $element2_end)
+			{
+			    //the end of the block we are adding is right against the start of this row
+			    return 3;
+			}else{
+			    if ($element1_end > $element2_start)
+			    {
+				//we are in between
+				return 1;
+			    }else{
+				if ($element1_end == $element2_start)
+				{
+				    //starting right at end of this block, its fine
+				    return 1;
+				}else{
+				    //tail < seeker
+				    //we are past this block so its fine
+				    return 5;
+				}
+			    }
+			}
+		    }
+		}else{
+		    if ($element1_Start == $element2_start)
+		    {
+			return 1;
+		    }else{
+			//front < seeker
+			if ($element2_start > $element1_end)
+			{
+			    //before where we are looking it doesnt matter
+			    return 1;
+			}else{
+			    if ($element2_start == $element1_end)
+			    {
+				return 7;
+			    }else{
+				//seeker < tail
+				if ($element2_end > $element1_end)
+				{
+				    //thats fine we are
+				    return 8;
+				}else{
+				    return 1;
+				}
+			    }
+			}
+		    }
+		}
 	}
 }
 

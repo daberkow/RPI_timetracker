@@ -11,7 +11,6 @@
                     $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), time_auth::getUser());
                     if ($permission >= 2)
                     {
-                        //stopped here
 			$returned_result = database_helper::db_add_user_group(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), time_auth::getUser());
 			echo $returned_result;
                     }else{
@@ -29,7 +28,6 @@
                     $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), time_auth::getUser());
                     if ($permission >= 2)
                     {
-                        //stopped here
 			$returned_result = database_helper::db_remove_priv(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), time_auth::getUser());
 			echo $returned_result;
                     }else{
@@ -89,43 +87,51 @@
 	    
 	    //day: the_day, hour: passedHour, quarter: passedQuarter, punch: passedUsedTime, mode: "half"
 	    case "punchClock":
-		if (isset($_REQUEST['day']) && isset($_REQUEST['hour']) && isset($_REQUEST['quarter']) && isset($_REQUEST['punch']) && isset($_REQUEST['mode']))
+		if (isset($_REQUEST['day']) && isset($_REQUEST['end_time']) && isset($_REQUEST['start_time']) && isset($_REQUEST['punch']))
 		{
-		    $startMin = 0;
-		    $endMin = 0;
-		    switch($_REQUEST['mode'])
-		    {
-			case "half":
-			    if (intval($_REQUEST['quarter']) == 2)
-			    {
-				//30-59
-				$startMin = 30;
-				$endMin = 59;
-			    }else{
-				$startMin = 0;
-				$endMin = 29;
-			    }
-			    break;
-			default:
-			    break;
-		    }
-		    database_helper::db_connect();
-		    //if the db isnt connected, escape strign does not work!
-		    $startTime = mysql_real_escape_string($_REQUEST['day']) . ' ' . mysql_real_escape_string($_REQUEST['hour']) . ':' . $startMin . ':00';
-		    $endTime   = mysql_real_escape_string($_REQUEST['day']) . ' ' . mysql_real_escape_string($_REQUEST['hour']) . ':' . $endMin . ':00';
-		    $RESULT = database_helper::db_return_row("SELECT EXISTS(SELECT * FROM `timedata` WHERE `startTime`='" . $startTime . "' AND `endTime`='" . $endTime . "' AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "')) AS RESULT");
+		    //echo "Day: " . $_REQUEST['day'] . ", start: " . $_REQUEST['start_time'] . ", end: " . $_REQUEST['end_time'] . " punch: " . $_REQUEST['punch'];
 		    
-		    echo $startTime . " " . $endTime;
-		    if (intval($RESULT[0][0]) == 1 )
+		    database_helper::db_connect();
+		    
+		    //if the db isnt connected, escape strign does not work!
+		    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . ";";
+		    //echo $query;
+		    $RESULT = database_helper::db_return_array($query);
+		    $insert = false;
+		    foreach($RESULT as $row)
 		    {
-			//already has a row in table
-			database_helper::db_insert_query("UPDATE `timedata` SET `status`='" . mysql_real_escape_string($_REQUEST['punch']) . "' WHERE `startTime`='" . $startTime . "' AND `endTime`='" . $endTime . "' AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "')");
-			echo "updated";
-		    }else{
-			//INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `endTime`, `status`) VALUES (NULL, '2', '2012-12-14 00:00:00', '2012-12-14 00:30:00', '1');
-			database_helper::db_insert_query("INSERT INTO `timedata`(`user`, `startTime`, `endTime`, `status`) VALUE((SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "'), '" . $startTime . "','" . $endTime . "','" . mysql_real_escape_string($_REQUEST['punch']) . "')");
-			//echo "INSERT INTO `timedata`(`user`, `startTime`, `endTime`, `status`) VALUE((SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "'), '" . $startTime . "','" . $endTime . "','" . mysql_real_escape_string($_REQUEST['punch']) . "')";
-			echo "inserted";
+			//we have times on that day lets see if they overlap the time we are trying to do
+			$front = strtotime($row['startTime']);
+			$tail = strtotime($row['stopTime']);
+			$seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['start_time']);
+			$rear_seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['end_time']);
+			//we are assuming that everyone is using this interface in v0.1
+			if ($front == $seeker)
+			{
+			    if (intval($_REQUEST['punch']) != intval($row['status']))
+			    {
+				//Do update
+				$result = database_helper::db_insert_query("UPDATE  `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
+				if ($result == '0')
+				    echo "Saved";
+				else
+				    echo "Error";
+				$insert = true;
+			    }else{
+				//trying to punch again?
+				$insert = true;
+			    }
+			}
+		    }
+		    
+		    //now we have the overlapping areas and need to adjust accoringly
+		    if ($insert == false)
+		    {
+			$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1');");
+			if ($result != false)
+			    echo "Saved";
+			else
+			    echo "Error";
 		    }
 		    
 		}else{
@@ -135,8 +141,58 @@
 	    case "getPunches":
 		if (isset($_REQUEST['start_day']))
 		{
-		    $result = array();
-		    //stopeped here this needs to bring punches to page
+		    database_helper::db_connect();
+		    //echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `username`='" . time_auth::getUser() . "');";
+		    $result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1;");
+		    echo json_encode($result);
+		}else{
+		    echo "Invalid Post";
+		}
+		break;
+	    case "saveTemplate":
+		if (isset($_REQUEST['dataString']) && isset($_REQUEST['temName']))
+		{
+		    database_helper::db_connect();
+		    $query = "SELECT * FROM `templateid` WHERE `name`='" . mysql_real_escape_string($_REQUEST['temName']) . "' AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1;";
+		    $result = database_helper::db_return_array($query);
+		    if (sizeof($result) >= 1)
+		    {
+			//A tempalte named that already exists
+			if (sizeof($result) == 1)
+			{
+			    $query = "UPDATE  `timetracker`.`templates` SET  `data` = '" . mysql_real_escape_string($_REQUEST['dataString']) . "' WHERE  `templates`.`id` =" . $result[0]['id'] . ";";
+			    $result = database_helper::db_insert_query($query);
+			    if ($result != false)
+			    {
+				echo "Saved " . $result[0]['id'];
+			    }else{
+				echo "Error";
+			    }
+			}else{
+			    //something weird is going on
+			    echo "Error";
+			}
+		    }else{
+			//this is a new name
+			$query = "INSERT INTO `timetracker`.`templates` (`id`, `data`, `name`, `owner`, `status`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['dataString']) . "', '" . mysql_real_escape_string($_REQUEST['temName']) . "', (SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "'), '1');";
+			$result = database_helper::db_insert_query($query);
+			if ($result != false)
+			{
+			    echo "Saved " . $result;
+			}else{
+			    echo "Error";
+			}
+		    }
+		}else{
+		    echo "Invalid Post";
+		}
+		break;
+	    case "getTemplate":
+		if (isset($_REQUEST['template']))
+		{
+		    database_helper::db_connect();
+		    $template = database_helper::db_return_array("SELECT `data` FROM `templates` WHERE `id`=" . mysql_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1;");
+		    echo json_encode($template);
 		}else{
 		    echo "Invalid Post";
 		}

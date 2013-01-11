@@ -1,7 +1,11 @@
 RPI_timetracker
 ===============
 
-Time Tracking 
+Time Tracking
+
+Parts that arent finished:
+    Add a group
+    Who can make a new group
 
 Random Code:
 SELECT CASE WHEN EXISTS (SELECT `status` FROM `timedata` WHERE `startTime`='11-11-11 11:11:11' AND `endTime`='11-11-11 11:11:12')
