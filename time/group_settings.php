@@ -1,11 +1,11 @@
 <?PHP
     
     include("./core.php");
-    if(!time_auth::is_authenticated())
+    if(!phpCAS::isAuthenticated())
     {
         header("Location: ./index.php");
     }else{
-	$user	= time_auth::getUser();
+	$user	= phpCAS::getUser();
     }
     
     if(isset($_REQUEST['group']))
@@ -57,25 +57,10 @@
         <link rel="stylesheet" type="text/css" href="./style.css"/>
         <link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
         <script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
-        <script src="./core.js"></script>
-	<!--<script>
-	    Group = "<?PHP //echo urlencode($_REQUEST['group']); ?>";
-	    Owners = new Array();
-	    <?PHP
-		/*foreach($ownerUsernames as $username)
-		{
-		    echo "Owners.push('" . $username . "');";
-		}*/
-	    ?>
-	    Users = new Array();
-	    <?PHP
-		/*foreach($usersUsernames as $username)
-		{
-		    echo "Users.push('" . $username . "');";
-		}*/
-	    ?>
+	<script>
+	    Group = "<?PHP echo urlencode($_REQUEST['group']); ?>";
 	    lastHit = 0;
-	</script>-->
+	</script>
     </head>
     <body>
         <div id="main">
@@ -107,7 +92,7 @@
 				echo "<table id='owners' style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>";
                                 //Owners
 				echo "<tr><td style='min-width: 100px;'>Owner(s):</td><td style='min-width: 500px;'></td></tr>";
-				echo "<tr><td>Add Owner:</td><td><button onclick=\"findUser('ownerAdd', 'ownerPossible')\">Lookup</button><input id='ownerAdd' type='text' onkeydown=\"check_enter(event, 'ownerAdd', 2)\"/><button>Add</button><div id='ownerPossible'></div></td></tr>";
+				echo "<tr><td>Add Owner:</td><td><button onclick=\"findUser('ownerAdd', 'ownerPossible')\">Lookup</button><input id='ownerAdd' type='text' onkeydown=\"check_enter(event, 'ownerAdd', 2)\"/><button onclick=\"addtoOwners('ownerAdd', 2);\">Add</button><div id='ownerPossible'></div></td></tr>";
                                 
 				foreach($ownerUsernames as $username)
 				{
@@ -118,7 +103,7 @@
                                 
 				//Users
 				echo "<tr><td style='min-width: 100px;'>User(s):</td><td style='min-width: 500px;'></tr>";
-				echo "<tr><td>Add User:</td><td><button onclick=\"findUser('userAdd', 'userPossible')\">Lookup</button><input id='userAdd' type='text' onkeydown=\"check_enter(event, 'userAdd', 1)\"/><button>Add</button><div id='userPossible'></div></td></tr>";
+				echo "<tr><td>Add User:</td><td><button onclick=\"findUser('userAdd', 'userPossible')\">Lookup</button><input id='userAdd' type='text' onkeydown=\"check_enter(event, 'userAdd', 1)\"/><button onclick=\"addtoOwners('userAdd', 1);\">Add</button><div id='userPossible'></div></td></tr>";
                                 
 				foreach($usersUsernames as $username)
 				{
@@ -130,7 +115,7 @@
                                 
 				//Users
 				$groupInfo = database_helper::db_return_row("SELECT `data` FROM `pages` WHERE `id`=(SELECT `page` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "')");
-				echo "<tr><td style='min-width: 100px;'>Group Page(HTML):</td><td style='min-width: 500px; '><form name='input' action='./ajax.php' method='post'><input type='hidden' name='type' value='pageUpdate'><input type='hidden' name='group' value='" . urlencode($_REQUEST['group']) . "'><textarea name='newPage' style='width: 90%; min-height:300px;'>" . urldecode($groupInfo[0][0]) . "</textarea></tr>";
+				echo "<tr><td style='width: 15%;'>Group Page(HTML):</td><td style='min-width: 500px; '><form name='input' action='./ajax.php' method='post'><input type='hidden' name='type' value='pageUpdate'><input type='hidden' name='group' value='" . urlencode($_REQUEST['group']) . "'><textarea name='newPage' style='width: 90%; min-height:300px;'>" . urldecode($groupInfo[0][0]) . "</textarea></tr>";
 				echo "<tr><td></td><td><button>Save Changes</button></td></form></tr></table>";
 				break;
                         }
@@ -216,7 +201,6 @@
 	    
 	    function addtoOwners(passedBox, passedpiv)
 	    {
-		
 		switch (passedBox)
 		{
 		    case "userAdd":
@@ -231,7 +215,7 @@
 		    url: './ajax.php',
 		    data: {type: "addgroupperm", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: $('#' + passedBox).val(), priv: passedpiv},
 		    success: function(data) {
-			console.log(data);
+			//console.log(data);
 			//Owners.push($('#ownerAdd').val());
 			
 			$("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>" + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
@@ -240,59 +224,112 @@
 			$('#' + accountType + 'Possible').html("");
 		    },
 		    error: function(data) {
-			console.log(data);
+			//console.log(data);
 		    }, 
 		});
 	    }
 	    
 	    function removeAccount(passedAccount, passedPriv)
 	    {
-		CodeRun = $.ajax({
-		    type: 'POST',
-		    url: './ajax.php',
-		    data: {type: "removeUser", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: passedAccount, priv: passedPriv},
-		    success: function(data) {
-			switch (data)
-			{
-			    //this is switching the new privilege
-			    case "0":
-				$("." + passedAccount + passedPriv).remove();
-				break;
-			    case "1":
-				switch(passedPriv)
+		if (passedAccount == "<?PHP echo $user; ?>")
+		{
+		    if (confirm("Are you sure you want to remove privilege from yourself?"))
+		    {
+			CodeRun = $.ajax({
+			    type: 'POST',
+			    url: './ajax.php',
+			    data: {type: "removeUser", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: passedAccount, priv: passedPriv},
+			    success: function(data) {
+				switch (data)
 				{
-				    case 1:
-					//this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
+				    //this is switching the new privilege
+				    case "0":
+					$("." + passedAccount + passedPriv).remove();
 					break;
-				    case 2:
-					//user to be a three and is now a 1
-					$("." + passedAccount + "2").remove();
+				    case "1":
+					switch(passedPriv)
+					{
+					    case 1:
+						//this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
+						break;
+					    case 2:
+						//user to be a three and is now a 1
+						$("." + passedAccount + "2").remove();
+						break;
+					}
+					break;
+				    case "2":
+					switch(passedPriv)
+					{
+					    case 1:
+						//was a 3, now is a 2 due to view removed
+						$("." + passedAccount + "2").remove();
+						break;
+					    case 2:
+						//shouldnt happen
+						break;
+					}
+					break;
+				    case "3":
+					//this shouldnt happen if we just removed privilege for anything
 					break;
 				}
-				break;
-			    case "2":
-				switch(passedPriv)
-				{
-				    case 1:
-					//was a 3, now is a 2 due to view removed
-					$("." + passedAccount + "2").remove();
-					break;
-				    case 2:
-					//shouldnt happen
-					break;
-				}
-				break;
-			    case "3":
-				//this shouldnt happen if we just removed privilege for anything
-				break;
-			}
-			console.log(data);
-		    },
-		    error: function(data) {
-			//error calling names
-			//bug no error return
-		    }, 
-		});
+				//console.log(data);
+			    },
+			    error: function(data) {
+				//error calling names
+				//bug no error return
+			    }, 
+			});
+		    }
+		}else{
+		    CodeRun = $.ajax({
+			type: 'POST',
+			url: './ajax.php',
+			data: {type: "removeUser", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: passedAccount, priv: passedPriv},
+			success: function(data) {
+			    switch (data)
+			    {
+				//this is switching the new privilege
+				case "0":
+				    $("." + passedAccount + passedPriv).remove();
+				    break;
+				case "1":
+				    switch(passedPriv)
+				    {
+					case 1:
+					    //this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
+					    break;
+					case 2:
+					    //user to be a three and is now a 1
+					    $("." + passedAccount + "2").remove();
+					    break;
+				    }
+				    break;
+				case "2":
+				    switch(passedPriv)
+				    {
+					case 1:
+					    //was a 3, now is a 2 due to view removed
+					    $("." + passedAccount + "2").remove();
+					    break;
+					case 2:
+					    //shouldnt happen
+					    break;
+				    }
+				    break;
+				case "3":
+				    //this shouldnt happen if we just removed privilege for anything
+				    break;
+			    }
+			    //console.log(data);
+			},
+			error: function(data) {
+			    //error calling names
+			    //bug no error return
+			}, 
+		    });
+		}
 	    }
 	    </script>
 	    

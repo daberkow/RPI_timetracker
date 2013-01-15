@@ -1,21 +1,33 @@
 <?PHP
     include('./core.php');
     
-    if(time_auth::is_authenticated())
+    if(phpCAS::isAuthenticated())
     {
         switch($_REQUEST['type'])
         {
             case "addgroupperm":
                 if(isset($_REQUEST['group']) && isset($_REQUEST['username']) && isset($_REQUEST['priv']))
                 {
-                    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), time_auth::getUser());
-                    if ($permission >= 2)
-                    {
-			$returned_result = database_helper::db_add_user_group(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), time_auth::getUser());
-			echo $returned_result;
-                    }else{
-                        echo "error: not permitted to add user";
-                    }
+		    if ($_REQUEST['group'] != "home" && $_REQUEST['group'] != "homeAuth")
+		    {
+			$permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+			if ($permission >= 2)
+			{
+			    $returned_result = database_helper::db_add_user_group(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), phpCAS::getUser());
+			    echo $returned_result;
+			}else{
+			    echo "error: not permitted to add user";
+			}
+		    }else{
+			$privilege = intval(database_helper::db_user_privilege(phpCAS::getUser()));
+			if (2 == $privilege)
+			{
+			    $returned_result = database_helper::db_add_user_group(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), phpCAS::getUser());
+			    echo $returned_result;
+			}else{
+			    echo "not enough permissions!";
+			}
+		    }
                 }else 
 		{
 		    echo "Required parts not sent";
@@ -25,14 +37,26 @@
 	    case "removeUser"://type: "removeUser", group: Group, username: passedAccount, priv: passedPriv},
 		if(isset($_REQUEST['group']) && isset($_REQUEST['username']) && isset($_REQUEST['priv']))
                 {
-                    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), time_auth::getUser());
-                    if ($permission >= 2)
-                    {
-			$returned_result = database_helper::db_remove_priv(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), time_auth::getUser());
-			echo $returned_result;
-                    }else{
-                        echo "error: not permitted to add user";
-                    }
+		    if ($_REQUEST['group'] != "home" && $_REQUEST['group'] != "homeAuth")
+		    {
+			$permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+			if ($permission >= 2)
+			{
+			    $returned_result = database_helper::db_remove_priv(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), phpCAS::getUser());
+			    echo $returned_result;
+			}else{
+			    echo "error: not permitted to add user";
+			}
+		    }else{
+			$privilege = intval(database_helper::db_user_privilege(phpCAS::getUser()));
+			if (2 == $privilege)
+			{
+			    $returned_result = database_helper::db_remove_priv(urlencode($_REQUEST['group']), urlencode($_REQUEST['username']), urlencode($_REQUEST['priv']), phpCAS::getUser());
+			    echo $returned_result;
+			}else{
+			    echo "not enough permissions!";
+			}
+		    }
                 }else 
 		{
 		    echo "Required parts not sent";
@@ -41,32 +65,60 @@
 	    case "pageUpdate":
 		if (isset($_POST['newPage']) && isset($_REQUEST['group']))
 		{
-		    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), time_auth::getUser());
-                    
-		    if($permission >= 2)
+		    if ($_REQUEST['group'] != "home" && $_REQUEST['group'] != "homeAuth")
 		    {
-			$getGrouPage = database_helper::db_return_row("SELECT `page` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "'");
-			if (sizeof($getGrouPage) <= 0)
+			$permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+			
+			if($permission >= 2)
 			{
-			    //group doesnt have page
-			    //bug this shouldnt happen, group creation error
-			}else{
-			    $returned = database_helper::db_insert_query("UPDATE `pages` SET `data`='" . urlencode($_POST['newPage']) . "' WHERE `id`='" . $getGrouPage[0][0] . "'");
-			    if ($returned == 0)
+			    $getGrouPage = database_helper::db_return_row("SELECT `page` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "'");
+			    if (sizeof($getGrouPage) <= 0)
 			    {
-				header("Location: ./group_settings.php?group=" . urlencode($_REQUEST['group']));
+				//group doesnt have page
+				//bug this shouldnt happen, group creation error
+			    }else{
+				$returned = database_helper::db_insert_query("UPDATE `pages` SET `data`='" . urlencode($_POST['newPage']) . "' WHERE `id`='" . $getGrouPage[0][0] . "'");
+				if ($returned == 0)
+				{
+				    header("Location: ./group_settings.php?group=" . urlencode($_REQUEST['group']));
+				}
 			    }
+			}else{
+			    echo "not enough permissions!";
+			    //feature, this just sits here if a invalud user tries to update
 			}
 		    }else{
-			echo "not enough permissions";
-			//feature, this just sits here if a invalud user tries to update
+			//special cases for pages
+			$privilege = intval(database_helper::db_user_privilege(phpCAS::getUser()));
+			if (2 == $privilege)
+			{
+			    switch ($_REQUEST['group'])
+			    {
+				case "home":
+				    $returned = database_helper::db_insert_query("UPDATE `pages` SET `data`='" . urlencode($_POST['newPage']) . "' WHERE `page`='home'");
+				    if ($returned == 0)
+				    {
+					header("Location: ./index.php");
+				    }
+				    break;
+				case "homeAuth":
+				    $returned = database_helper::db_insert_query("UPDATE `pages` SET `data`='" . urlencode($_POST['newPage']) . "' WHERE `page`='homeAuth'");
+				    if ($returned == 0)
+				    {
+					header("Location: ./index.php");
+				    }
+				    break;
+			    }
+			}else{
+			    echo "not enough permissions";
+			}
 		    }
 		}else{
 		    echo "no given data";
 		}
 		break;
 	    case "newGroup":
-		$permission = database_helper::db_user_privilege(time_auth::getUser());
+		$permission = database_helper::db_user_privilege(phpCAS::getUser());
 		if (intval($permission) >= 1)
 		{
 		    if(isset($_REQUEST['newGroupName']))
@@ -93,8 +145,14 @@
 		    
 		    database_helper::db_connect();
 		    
+		    $isOpposite = 0;
+		    if (intval($_REQUEST['punch']) == 0)
+		    {
+			$isOpposite = 1;
+		    }
+		    
 		    //if the db isnt connected, escape strign does not work!
-		    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . ";";
+		    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `status`='" . $isOpposite . "';";
 		    //echo $query;
 		    $RESULT = database_helper::db_return_array($query);
 		    $insert = false;
@@ -127,7 +185,7 @@
 		    //now we have the overlapping areas and need to adjust accoringly
 		    if ($insert == false)
 		    {
-			$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1');");
+			$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1');");
 			if ($result != false)
 			    echo "Saved";
 			else
@@ -143,7 +201,7 @@
 		{
 		    database_helper::db_connect();
 		    //echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `username`='" . time_auth::getUser() . "');";
-		    $result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1;");
+		    $result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
 		    echo json_encode($result);
 		}else{
 		    echo "Invalid Post";
@@ -153,7 +211,7 @@
 		if (isset($_REQUEST['dataString']) && isset($_REQUEST['temName']))
 		{
 		    database_helper::db_connect();
-		    $query = "SELECT * FROM `templateid` WHERE `name`='" . mysql_real_escape_string($_REQUEST['temName']) . "' AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1;";
+		    $query = "SELECT * FROM `templateid` WHERE `name`='" . mysql_real_escape_string($_REQUEST['temName']) . "' AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;";
 		    $result = database_helper::db_return_array($query);
 		    if (sizeof($result) >= 1)
 		    {
@@ -174,7 +232,7 @@
 			}
 		    }else{
 			//this is a new name
-			$query = "INSERT INTO `timetracker`.`templates` (`id`, `data`, `name`, `owner`, `status`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['dataString']) . "', '" . mysql_real_escape_string($_REQUEST['temName']) . "', (SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "'), '1');";
+			$query = "INSERT INTO `timetracker`.`templates` (`id`, `data`, `name`, `owner`, `status`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['dataString']) . "', '" . mysql_real_escape_string($_REQUEST['temName']) . "', (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '1');";
 			$result = database_helper::db_insert_query($query);
 			if ($result != false)
 			{
@@ -191,10 +249,186 @@
 		if (isset($_REQUEST['template']))
 		{
 		    database_helper::db_connect();
-		    $template = database_helper::db_return_array("SELECT `data` FROM `templates` WHERE `id`=" . mysql_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . time_auth::getUser() . "') AND `status`=1;");
+		    $template = database_helper::db_return_row("SELECT `data` FROM `templates` WHERE `id`=" . mysql_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
 		    echo json_encode($template);
 		}else{
 		    echo "Invalid Post";
+		}
+		break;
+	    case "DBMacro":
+		if (isset($_REQUEST['macro_code']))
+		{
+		    //1 is load template to start_date, 2 is wipe board for week with start_date
+		    switch (intval($_REQUEST['macro_code']))
+		    {
+			case 1:
+			    if (isset($_REQUEST['start_date']) && isset($_REQUEST['template']))
+			    {
+				$theDate = explode("-",$_REQUEST['start_date']);
+				database_helper::db_connect();
+				$template = database_helper::db_return_row("SELECT `data` FROM `templates` WHERE `id`=" . mysql_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
+				$data = (string) $template[0][0];
+				$data = explode(",", $data);
+				$error = false;
+				for($i = 0; $i < sizeof($data); $i++)
+				{
+				    $dateString = explode("_", $data[$i]);
+				    //0 is day, 1 is hour, 2 is 0 or 2 for 0 or 30;
+				    $mins = 0;
+				    if (intval($dateString[2]) == 2)
+				    {
+					$mins = 30;
+				    }
+				    //hour, min, second, month, day, year
+				    $punchTime = mktime($dateString[1], $mins, 0, $theDate[1], $theDate[2]+(intval($dateString[0])-1), $theDate[0]);
+				    $start  = date('Y-m-d H:i',$punchTime);
+				    $end    = date('Y-m-d H:i',$punchTime+(60*29));
+				    //echo "<DIV>Start:" . $start . " End:" . $end . " </DIV>\n";
+				    
+				    $query = "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $start . "', '" . $end . "', now(),'1');";
+				    
+				    //echo $query;
+				    $result = database_helper::db_insert_query($query);
+				    if ($result[0] == 'E')
+				    {
+					$error = true;
+				    }
+				}
+				if ($error == false)
+				{
+				    echo "Saved";
+				}else{
+				    echo "Error";
+				}
+			    }else{
+				echo "Invalid Post";
+			    }
+			    break;
+			case 2:
+			    if (isset($_REQUEST['start_date']))
+			    {
+				$theDate = explode("-",$_REQUEST['start_date']);
+				$newTime = mktime(0, 0, 0, $theDate[1], $theDate[2], $theDate[0]);
+				$query = "UPDATE `timetracker`.`timedata` SET `status`=0 AND `submitted`=NOW() WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1";
+				$result = database_helper::db_insert_query($query);
+				if ($result[0] == 'E')
+				{
+				    echo "Error";
+				}else{
+				    echo "Saved";
+				}
+			    }else{
+				echo "Invalid Post";
+			    }
+			    break;
+		    }
+		}else{
+		    echo "Invalid Post";
+		}
+		break;
+	    case "printReport":
+		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']))
+		{
+		    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+		    $theDate = explode("-",$_REQUEST['start_date']);
+		    $newTime = mktime(0, 0, 0, $theDate[1], $theDate[2], $theDate[0]);
+		    $totalhours = 0.0;
+		    if ($permission >= 2)
+		    {
+			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `status`=1;");
+			$users = database_helper::db_return_array("SELECT * FROM `users`;");
+			$Final_Array = array();
+			$dayArray = array(); // hey that rhymes
+			foreach($result as $row)
+			{
+			    //( [0] => 6 [id] => 6 [1] => 2 [user] => 2 [2] => 2013-01-06 03:30:00 [startTime] => 2013-01-06 03:30:00 [3] => 2013-01-06 03:59:00 [stopTime] => 2013-01-06 03:59:00 [4] => 2013-01-15 00:58:07 [submitted] => 2013-01-15 00:58:07 [5] => 1 [status] => 1 )
+			    //this requires start day and end day be the same day
+			    $temp_split = explode(" ",$row['startTime']);
+			    $date = $temp_split[0];		//still one string
+			    $newDate = explode("-", $date);	//0 year 1 day 2 month
+			    $Starttime = $temp_split[1];
+			    $Starttime = explode(":", $Starttime);	//0 hour 1 minute 2 second
+			    $temp_split = explode(" ",$row['stopTime']);
+			    $Endtime = $temp_split[1];
+			    $Endtime = explode(":", $Endtime);
+			    $Starttime = mktime($Starttime[0],$Starttime[1], $Starttime[2]);
+			    $Endtime = mktime($Endtime[0],$Endtime[1]+1, $Endtime[2]);//make up for count by 0
+			    $totalTime = $Endtime - $Starttime;
+			    $Final_Array[$row['user']][$date] += ($totalTime/60);
+			    //$Final_Array[$row['user']]['name'] = $row['user'];
+			}
+			$flip = true;
+			echo "<table style='border-style: solid; border-width:1px;'><tr style='border-style: solid; border-width:1px;'><td style='width: 20px;'></td>";
+			for ($k = 0; $k < 14; $k++)
+			{
+			    $referenceDate = date('Y-m-d', mktime(0, 0, 0, $theDate[1], $theDate[2]+$k, $theDate[0]));
+			    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $referenceDate . "</td>";
+			}
+			echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>Total</td>";
+			echo "</tr>";
+			foreach($Final_Array as $user => $point)
+			{
+			    if ($flip)
+			    {
+				echo "<tr style='background:#CCCCCC;'>";
+			    }else{
+				echo "<tr>";
+			    }
+			    $flip = !$flip;
+			    $myusername = "";
+			    foreach($users as $userRow)
+			    {
+				if ($userRow['id'] == $user)
+				{
+				    $myusername = $userRow['username'];
+				}
+			    }
+			    echo "<td>$myusername</td>";
+			    
+			    //itterate through days
+			    $total = 0.0;
+			    for ($k = 0; $k < 14; $k++)
+			    {
+				$referenceDate = date('Y-m-d', mktime(0, 0, 0, $theDate[1], $theDate[2]+$k, $theDate[0]));
+				if (isset($point[$referenceDate]))
+				{
+				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . ($point[$referenceDate]/60) . "</td>";
+				    $total += ($point[$referenceDate]/60);
+				    $dayArray[$referenceDate] += ($point[$referenceDate]/60);
+				}else{
+				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
+				}
+			    }
+			    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $total . "</td>";
+			    $totalhours += $total;
+			    echo "</tr>";
+			}
+			if ($flip)
+			{
+			    echo "<tr style='background:#CCCCCC;'>";
+			}else{
+			    echo "<tr>";
+			}
+			$flip = !$flip;
+			echo "<td>Total:</td>";
+			for ($k = 0; $k < 14; $k++)
+			{
+			    $referenceDate = date('Y-m-d', mktime(0, 0, 0, $theDate[1], $theDate[2]+$k, $theDate[0]));
+			    if (isset($dayArray[$referenceDate]))
+			    {
+				echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $dayArray[$referenceDate] . "</td>";
+			    }else{
+				echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
+			    }
+			}
+			echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $totalhours . "</td>";
+			echo "</tr></table>";
+			//print_r($result);
+		    }else{
+			echo "not enough permissions";
+		    }
+		}else{
+		    echo "invalid post";
 		}
 		break;
             default:

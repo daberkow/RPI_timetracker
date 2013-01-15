@@ -1,5 +1,5 @@
 <?PHP
-	// Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, November 2012
+	// Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
 
 	include_once './cas/CAS.php';
 	
@@ -14,7 +14,7 @@
 		phpCAS::forceAuthentication();
 	}else{
 		//We are authenticated, but we may not be in the users database		
-		include './core.php';
+		include('./core.php');
 		$user = database_helper::db_return_row("SELECT * FROM `users` WHERE `username`='" . phpCAS::getUser() ."' LIMIT 0,1");
 		
 		if (sizeof($user) > 0)

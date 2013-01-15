@@ -1,9 +1,9 @@
 <?PHP
-    // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, November 2012
+    // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
     
     include('./core.php');
 	
-    if(!time_auth::is_authenticated())
+    if(!phpCAS::isAuthenticated())
     {
         header("Location: ./index.php");
     }/**else{

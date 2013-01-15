@@ -6,9 +6,19 @@
     //timetracker::draw_week_js();
     //echo time();
     //echo timetracker::checkOverlap(0,2,6,7);
-    
-    if (13 != false)
-        echo "Saved";
-    else
-        echo "Error";
+    $dan[0] = "dan";
+    if(isset($dan[0]))
+    {
+        echo "1";
+    }else{
+        echo "2";
+    }
 ?>
+<HTML>
+    <body>
+        Javascript:
+        <script>
+
+        </script>
+    </body>
+</HTML>

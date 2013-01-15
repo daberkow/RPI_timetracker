@@ -104,27 +104,24 @@ hr {
 }
 
 #Stats {
-	position: relative;
-	width: 100px;
+	width: 40%;
 	text-align: left;
 	float: left;
+	display: inline-block;
 }
 
 #version {
 	font-size: 12px;
-	position: relative;
-	width: 50px;
+	width: 19%;
 	text-align: center;
-	float: left;
-	margin-left: 30%;
+	display: inline-block;
 }
 
 #options {
 	position: relative;
-	width: 300px;
+	width: 40%;
 	text-align: right;
-	left: -20px;
-	float: right;
+	display: inline-block;
 }
 
 #working_area {

@@ -1,26 +1,27 @@
-function gotoGroup()
-{
-    window.location = './group.php?group=' + $('#groupSelector').val();
-}
+// Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
 
 function lastweek()
 {
+    wipeBoard(false);
     start_time = parseInt(start_time) - (60*60*24*14);
     for (i = 1; i <= 14; i++)
     {
         var d = new Date((start_time * 1000) + ((i-1)*(60*60*24*1000)));
         $(".day" + i + "Name").html((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
     }
+    loadPage();
 }
 
 function nextweek()
 {
+    wipeBoard(false);
     start_time = parseInt(start_time) + (60*60*24*14);
     for (i = 1; i <= 14; i++)
     {
         var d = new Date((start_time * 1000) + ((i-1)*(60*60*24*1000)));
         $(".day" + i + "Name").html((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
     }
+    loadPage();
 }
 
 
@@ -38,7 +39,7 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed)
     if (typeof(savedData['hour' + passedDay + "_" + passedHour + "_" + half]) == "undefined")
     {
         savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
-        $("#hour_" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
+        $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
         if (typeof(savedData['day' + passedDay]) == "undefined")
         {
             savedData['day' + passedDay] = 0.5;
@@ -51,22 +52,17 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed)
         if (savedData['hour' + passedDay + "_" + passedHour + "_" + half] == 1)
         {
             savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 0;
-            $("#hour_" + passedDay + "_" + passedHour + "_" + half).css("background-color", "transparent");
+            $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "transparent");
             savedData['day' + passedDay] -= 0.5;
             punch(passedDay, passedHour, passedHalf, passedTimePassed, 0); 
         }else{
             savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
-            $("#hour_" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
+            $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
             savedData['day' + passedDay] += 0.5;
             punch(passedDay, passedHour, passedHalf, passedTimePassed, 1); 
         }
     }
     drawDay(passedDay);
-}
-
-function drawDay(passedDay)
-{
-    $("#dayTotal" + passedDay).val(savedData['day' + passedDay]);
 }
 
 function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime)
@@ -75,8 +71,8 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
     CompleteDate = new Date(the_day);
     CompleteDate.setHours(passedHour);
     CompleteDate.setMinutes(passedTime);
+    //this works because the time is being used for one thing and the day is seperate
     StartTime = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
-    CompleteDate = new Date(CompleteDate)
     FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
     CompleteDate = new Date(CompleteDate.getTime() + (1000*60*(parseInt(passedDuration) - 1)));
     StopTime  = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
@@ -87,16 +83,15 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
         success: function(data) {
             if (data == "Saved")
             {
-                $('#pageStatus').html("Saved");
-                $("#pageStatus").css("background-color", "green");
+                statusChange(1);
             }else{
-                $('#pageStatus').html("Error");
-                $("#pageStatus").css("background-color", "red");
+                //console.log(data);
+                statusChange(2);
             }
-            setTimeout(function() {	fadeME("#pageStatus", "007b12") }, 500 );
         },
         error: function(data) {
             //error calling names
+            statusChange(2);
         }, 
     });
 }
@@ -156,29 +151,28 @@ function loadPage()
                 if (plexis.getMinutes() == 0)
                 {
                     half = 0;
-                    $("#hour_" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+                    $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
                     savedData['hour' + day + "_" + plexis.getHours() + "_0"] = 1;
                     savedData['day' + day] += 0.5;
                 }else{
                     if (plexis.getMinutes() == 30)
                     {
                         half = 2;
-                        $("#hour_" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
-                        savedData['hour' + day + "_" + plexis.getHours() + "_1"] = 1;
+                        $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+                        savedData['hour' + day + "_" + plexis.getHours() + "_2"] = 1;
                         savedData['day' + day] += 0.5;
                     }else{
                         //half = 1;
                     }
                 }
                 drawDay(day);
-               
             }
+            statusChange(1);
         },
         error: function(data) {
             //error calling names
         }, 
     });
-    $('#pageStatus').html("Synced");
 }
 
 function saveTemplate()
@@ -192,12 +186,12 @@ function saveTemplate()
     savingString = "";
     for(row in savedData)
     {
-        if(row[0] == 'h')
+        if(row[0] == 'h' && savedData[row] == 1)
         {//hour data
             savingString += row.substring(4) + ",";
         }
     }
-    console.log(savingString);
+    //console.log(savingString);
     order = $.ajax({
         type: 'POST',
         url: './ajax.php',
@@ -206,23 +200,144 @@ function saveTemplate()
             if (data[0] == 'S')
             {
                 splitData = data.split(" ");
-                $('#pageStatus').html("Saved");
-                $("#pageStatus").css("background-color", "green");
+                statusChange(1);
                 $("#templates").append("<option value=" + splitData[1] + ">" + $('#templateName').val() + "</option>");
                 $('#templateName').val("");
             }else{
-                $('#pageStatus').html("Error");
-                $("#pageStatus").css("background-color", "red");
+                statusChange(2);
             }
-            setTimeout(function() {	fadeME("#pageStatus", "007b12") }, 500 );
         },
         error: function(data) {
             //error calling names
+            statusChange(2);
         }, 
     });
 }
 
+function drawDay(passedDay)
+{
+    $("#dayTotal" + passedDay).val(savedData['day' + passedDay]);
+}
+
+function wipeBoard(shouldSave)
+{
+    for(row in savedData)
+    {
+        if(row[0] == 'h')
+        {//hour data
+            $("#" + row).css("background-color", "transparent");
+            savedData[row] = 0;
+            temp = row.substring(4);
+            temp = temp.split("_");
+            //console.log(temp[0]);
+            drawDay(temp[0]);
+        }else{
+            if (row[0] == 'd')
+            {
+                savedData[row] = 0;
+                drawDay(row.substring(3));
+            }
+            
+        }
+    }
+    if (shouldSave)
+    {
+        the_day = parseInt(start_time) * 1000;
+        CompleteDate = new Date(the_day);
+        FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+        order = $.ajax({
+            type: 'POST',
+            url: './ajax.php',
+            data: {type: 'DBMacro', macro_code: 2, start_date: FinishedDay},
+        });
+    }
+}
+
 function loadTemplate()
 {
-    //stopped here need to load templates
+    if ( parseInt($('#templates').val()) <= 0)
+    {
+        return;
+    }
+    order = $.ajax({
+        type: 'POST',
+        url: './ajax.php',
+        data: {type: 'getTemplate', template: $('#templates').val()},
+        success: function(data) {
+            //console.log(data);
+            split_digest = JSON.parse(data);
+            split_digest = split_digest[0][0].toString();
+            split_digest = split_digest.split(",");
+            //console.log(split_digest);
+            wipeBoard(true);
+            for(box in split_digest)
+            {
+                temp_Split = split_digest[box].split("_");
+                //console.log(temp_Split);
+                if (temp_Split.length == 3)
+                {
+                    $("#hour" + temp_Split[0] + "_" + temp_Split[1] + "_" +(temp_Split[2])).css("background-color", "green");
+                    savedData['hour' + temp_Split[0] + "_" + temp_Split[1] + "_" + temp_Split[2]] = 1;
+                    savedData['day' + temp_Split[0]] += 0.5;
+                    drawDay(temp_Split[0]);
+                }
+            }
+            save_template_db();
+            statusChange(1);
+        },
+        error: function(data) {
+            //error calling names
+            statusChange(2);
+        }, 
+    });
+}
+
+function save_template_db()
+{
+    the_day = parseInt(start_time) * 1000;
+    CompleteDate = new Date(the_day);
+    FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+    
+    order = $.ajax({
+        type: 'POST',
+        url: './ajax.php',
+        data: {type: 'DBMacro', macro_code: 1,template: $('#templates').val(), start_date: FinishedDay},
+        success: function(data) {
+            if (data[0] == 'S')
+            {
+                statusChange(1);
+            }else{
+                statusChange(2);
+            }
+        },
+        error: function(data) {
+            //error calling names
+            statusChange(2);
+        }, 
+    });
+}
+
+function statusChange(passedStatus)
+{
+    totalHours = 0.0;
+    for(day in savedData)
+    {
+        if (day[0] == 'd')
+        {
+            totalHours += parseFloat(savedData[day]);
+        }
+    }
+    switch (passedStatus)
+    {
+        case 1:
+            $('#pageStatus').html("Saved, Total Hours: " + totalHours);
+            $("#pageStatus").css("background-color", "green");
+            break;
+        case 2:
+            $('#pageStatus').html("Error");
+            $("#pageStatus").css("background-color", "red");
+            alert("An Error has occured, please refresh page");
+            break;
+    }
+    setTimeout(function() {	fadeME("#pageStatus", "007b12") }, 500 );
 }

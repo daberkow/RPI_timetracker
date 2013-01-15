@@ -1,17 +1,23 @@
 <?PHP
-	// Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, November 2012
-	
+	// Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
 	include('./core.php');
 
-	if(time_auth::is_authenticated())
+			
+	if(phpCAS::isAuthenticated())
 	{
-		$groupID = database_helper::db_return_row("SELECT `defaultgroup` FROM `users` WHERE `username`='" . time_auth::getUser() . "' ;");
+		$groupID = database_helper::db_return_row("SELECT `defaultgroup` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' ;");
 		if (intval($groupID[0][0]) > 0)
 		{
 			$group = database_helper::db_return_row("SELECT `name` FROM `groups` WHERE `id`='" . $groupID[0][0] . "';");
 			header("Location: ./group.php?group=" . $group[0][0]);
 		}else{
-			$user = time_auth::getUser();
+			$groups = database_helper::db_return_row("SELECT COUNT(`groupid`) AS RESULT FROM `groupusers` WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `privilege`>=1;");
+			if (intval($groups[0][0]) == 1)
+			{
+				$theGroup = database_helper::db_return_row("SELECT `name` FROM `groups` WHERE `id`=(SELECT `groupid` AS RESULT FROM `groupusers` WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'));");
+				header("Location: ./group.php?group=" . $theGroup[0][0]);
+			}
+			$user = phpCAS::getUser();
 		}
 	}
 	
@@ -23,7 +29,6 @@
 		<link rel="stylesheet" type="text/css" href="./style.css"/>
 		<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
 		<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
-		<script src="./core.js"></script>
 	</head>
 	<body>
 		<!-- DIVS! -->
@@ -37,9 +42,16 @@
 			<div class="gray_bar"></div>
 			<div id="working_area">
 				<?PHP
-					$page = database_helper::db_return_row("SELECT * FROM `pages` WHERE `page`='home'");
+					if(phpCAS::isAuthenticated())
+					{
+						$page = database_helper::db_return_row("SELECT * FROM `pages` WHERE `page`='homeAuth'");
+						echo urldecode($page[0]['data']);
+					}else{
+						$page = database_helper::db_return_row("SELECT * FROM `pages` WHERE `page`='home'");
+						echo urldecode($page[0]['data']);
+					}
 					
-					echo $page[0]['data'];
+					
 				?>
 			</div>
 			
