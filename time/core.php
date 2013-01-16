@@ -3,7 +3,7 @@
 include_once('./cas/CAS.php');
 phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 // SSL!
-phpCAS::setCasServerCACert("./cas-auth.rpi.edu");
+phpCAS::setCasServerCACert("./cas/cas-auth.rpi.edu");
 
 class database_helper {
 
