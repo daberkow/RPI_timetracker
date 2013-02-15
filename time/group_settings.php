@@ -50,7 +50,7 @@
 	}
     }
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <title class = "title">Time Tracker Group Settings</title>

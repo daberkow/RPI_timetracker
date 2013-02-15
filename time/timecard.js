@@ -1,5 +1,5 @@
 // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
-
+WipeBegun = 0;
 function lastweek()
 {
     wipeBoard(false);
@@ -146,7 +146,11 @@ function loadPage()
             parsedJson = JSON.parse(data);
             for (i = 0; i < parsedJson.length; i++)
             {
-                plexis = new Date(parsedJson[i]['startTime']);
+                IE_Fix_String = parsedJson[i]['startTime'];
+                IE_Date = IE_Fix_String.split(" ");
+                IE_Time = IE_Date[1].split(":");
+                IE_Date = IE_Date[0].split("-");
+                plexis = new Date(IE_Date[0], IE_Date[1] - 1, IE_Date[2], IE_Time[0], IE_Time[1], IE_Time[2]);
                 day = Math.floor((plexis.getTime() - origin.getTime() + (60*60*24*1000)) / (60*60*24*1000));
                 if (plexis.getMinutes() == 0)
                 {
@@ -221,6 +225,26 @@ function drawDay(passedDay)
 
 function wipeBoard(shouldSave)
 {
+    if (shouldSave)
+    {
+        WipeBegun = 1;
+        the_day = parseInt(start_time) * 1000;
+        CompleteDate = new Date(the_day);
+        FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+        order = $.ajax({
+            type: 'POST',
+            url: './ajax.php',
+            data: {type: 'DBMacro', macro_code: 2, start_date: FinishedDay},
+            success: function(data) {
+                if (data[0] == 'S')
+                {
+                    WipeBegun = 0;
+                }else{
+                    WipeBegun = 5;
+                }
+            }
+        });
+    }
     for(row in savedData)
     {
         if(row[0] == 'h')
@@ -240,17 +264,7 @@ function wipeBoard(shouldSave)
             
         }
     }
-    if (shouldSave)
-    {
-        the_day = parseInt(start_time) * 1000;
-        CompleteDate = new Date(the_day);
-        FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
-        order = $.ajax({
-            type: 'POST',
-            url: './ajax.php',
-            data: {type: 'DBMacro', macro_code: 2, start_date: FinishedDay},
-        });
-    }
+    
 }
 
 function loadTemplate()
@@ -294,27 +308,37 @@ function loadTemplate()
 
 function save_template_db()
 {
-    the_day = parseInt(start_time) * 1000;
-    CompleteDate = new Date(the_day);
-    FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
-    
-    order = $.ajax({
-        type: 'POST',
-        url: './ajax.php',
-        data: {type: 'DBMacro', macro_code: 1,template: $('#templates').val(), start_date: FinishedDay},
-        success: function(data) {
-            if (data[0] == 'S')
-            {
-                statusChange(1);
-            }else{
+    //This wipebegun code is for a race condition between wiping and saving
+    if (WipeBegun > 0) {
+        the_day = parseInt(start_time) * 1000;
+        CompleteDate = new Date(the_day);
+        FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+        
+        order = $.ajax({
+            type: 'POST',
+            url: './ajax.php',
+            data: {type: 'DBMacro', macro_code: 1,template: $('#templates').val(), start_date: FinishedDay},
+            success: function(data) {
+                if (data[0] == 'S')
+                {
+                    statusChange(1);
+                }else{
+                    statusChange(2);
+                }
+            },
+            error: function(data) {
+                //error calling names
                 statusChange(2);
-            }
-        },
-        error: function(data) {
-            //error calling names
+            }, 
+        }); 
+    }else{
+        if (WipeBegun < 5) {
+            WipeBegun++;
+            setTimeout(function() { save_template_db() }, 300 );
+        }else{
             statusChange(2);
-        }, 
-    });
+        }
+    }
 }
 
 function statusChange(passedStatus)

@@ -8,10 +8,10 @@
 	header("Location: ./index.php");
     }
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
-        <noscript><!--<meta http-equiv="refresh" content="1;url=./basic/basic_timecard.php?group=<?PHP echo urlencode($_REQUEST['group']); ?>"></noscript>-->
+        <noscript><!--<meta http-equiv="refresh" content="1;url=./basic/basic_timecard.php?group=<?PHP echo urlencode($_REQUEST['group']); ?>">--></noscript>
 	<title class = "title">Time Tracker Time Card</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
@@ -60,28 +60,29 @@
 				    echo "</select></div><div id='pageStatus' style='display: inline-block; width: 19%; text-align: center;'>Synced</div>
 					    <div style='width: 40%; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></div></div>";
 				    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
+				    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";
 				    for($i = 1; $i < 15; $i++)
 				    {
-					    echo "<div id='day" . $i . "' style='text-align: center; width: 14%; min-width: 150px; height: 650px; border-width: 1px; border-color: black; border-style: solid; display: inline-block;'>
-						    <h4 class='day" . $i . "Name'style='margin-bottom: 0px;'>" . date('m/d/Y', ($start_time + (60*60*24*($i - 1)))) . "</h4>
+					    echo "<div id='day" . $i . "' style='text-align: center; width: 14%; min-width: 150px; height: 400px; border-width: 1px; border-color: black; border-style: solid; display: inline-block;'>
+						    <h4 class='day" . $i . "Name' style='margin-bottom: 0px; margin-top: 5px;'>" . date('m/d/Y', ($start_time + (60*60*24*($i - 1)))) . "</h4>
 						    <h5 style='margin-bottom: 0px; margin-top: 0px;'>" . date("l", ($start_time + (60*60*24*($i - 1)))) . "</h5>
-						    Hours: <input type='text' id='dayTotal" . $i . "' name='day' style='width: 30%; min-width: 60px;' disabled='disabled'></input>";
-					    for ($k = 0; $k < 24; $k++)
+						    <p style='font-size: 12px; display: inline;'>Hours: </p><input type='text' id='dayTotal" . $i . "' name='day' style='width: 30%; min-width: 60px; height: 14px; font-size: 12px;' disabled='disabled'></input>";
+					    for ($k = 7; $k < 23; $k++)
 					    {
 						    if ($k < 12)
 						    {
 							    switch ($k)
 							    {
 								    case 0:
-									    echo "<div>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_0'>12:00AM</span>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_2'>12:30AM</span>";
+									    echo "<div class='buttonLine'>";
+									    echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>12:00AM</span>";
+									    echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>12:30AM</span>";
 									    echo "</div>\n";
 									    break;
 								    default:
-									    echo "<div>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_0'>$k:00AM</span>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_2'>$k:30AM</span>";
+									    echo "<div class='buttonLine'>";
+									    echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>$k:00AM</span>";
+									    echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>$k:30AM</span>";
 									    echo "</div>\n";
 									    break;
 							    }
@@ -89,15 +90,15 @@
 							    switch ($k)
 							    {
 								    case 12:
-									    echo "<div>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_0'>12:00PM</span>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_2'>12:30PM</span>";
+									    echo "<div class='buttonLine'>";
+									    echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>12:00PM</span>";
+									    echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>12:30PM</span>";
 									    echo "</div>\n";
 									    break;
 								    default:
-									    echo "<div>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','00');\" style='border-width: 1px; border-style: solid; border-right-width: 0px; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
-									    echo "<span onclick=\"clockPunch('" . $i . "','" . $k . "','30');\" style='border-width: 1px; border-style: solid; font-size: 70%; width: 60px; height: 20px; display: inline-block;' id='hour" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
+									    echo "<div class='buttonLine'>";
+									    echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00');\" id='hour" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
+									    echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30');\" id='hour" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
 									    echo "</div>\n";
 									    break;
 							    }
@@ -109,6 +110,7 @@
 					    
 					    echo "</div>";
 				    }
+				    echo "</DIV>";
 				    echo "</div></form>";
 				    break;
 			    }
