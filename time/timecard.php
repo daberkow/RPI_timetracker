@@ -17,7 +17,13 @@
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
 	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
+	<script type="application/x-javascript">
+	    pagegroup = '<?PHP echo urlencode($_REQUEST['group']); ?>';
+	    pageuser = '<?PHP echo phpCAS::getUser(); ?>';
+	    pageoverride = false;
+	</script>
 	<script src="./timecard.js"></script>
+	
     </head>
     <body onload='loadPage();'>
 	<div id="main">
@@ -38,15 +44,14 @@
 				    break;
 				case 2:
 				    echo "<h3 style='text-align: center'> You are a administrator of the group, but not a user</h3>";  
-				    break;
 				case 1:
 				case 3:
 				    //timescard stuff here
                                     If (isset($_REQUEST['date']))
 				    {
-					    $start_time = timetracker::get_First_day(strtotime($_REQUEST['date']));
+					$start_time = timetracker::get_First_day(strtotime($_REQUEST['date']));
 				    }else{
-					    $start_time = timetracker::get_First_day(time());
+					$start_time = timetracker::get_First_day(time());
 				    }
 				    
 				    echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); </script>";
@@ -55,9 +60,20 @@
 				    $templates = database_helper::db_return_array("SELECT * FROM `templates` WHERE `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1");
 				    foreach($templates as $template)
 				    {
-					    echo "<option value=" . $template['id'] . ">" .  $template['name'] . "</option>";
+					echo "<option value=" . $template['id'] . ">" .  $template['name'] . "</option>";
 				    }
-				    echo "</select></div><div id='pageStatus' style='display: inline-block; width: 19%; text-align: center;'>Synced</div>
+				    echo "</select>";
+				    if ($privilege >= 2)
+				    {
+					echo "Save as User: <select id='SaveAsUser' style='width: 150px;' onclick='selectUser()'><option value=0>------</option>";
+					$Users = database_helper::db_return_array("SELECT users.id, users.username FROM `users` LEFT JOIN `groupusers` ON users.id=groupusers.userid WHERE groupusers.`groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "' ) AND (groupusers.`privilege`=1 OR groupusers.`privilege`=3)");
+					foreach($Users as $user)
+					{
+					    echo "<option value=" . $user['id'] . ">" .  $user['username'] . "</option>";
+					}
+					echo "</select>";
+				    }
+				    echo "</div><div id='pageStatus' style='display: inline-block; width: 19%; text-align: center;'>Synced</div>
 					    <div style='width: 40%; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></div></div>";
 				    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 				    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";

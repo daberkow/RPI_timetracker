@@ -76,29 +76,51 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
     FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
     CompleteDate = new Date(CompleteDate.getTime() + (1000*60*(parseInt(passedDuration) - 1)));
     StopTime  = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
-    order = $.ajax({
-        type: 'POST',
-        url: './ajax.php',
-        data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime},
-        success: function(data) {
-            if (data == "Saved")
-            {
-                statusChange(1);
-            }else{
-                //console.log(data);
+    if (pageoverride) {
+        order = $.ajax({
+            type: 'POST',
+            url: './ajax.php',
+            data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, override: $('#SaveAsUser').val(), group: pagegroup},
+            success: function(data) {
+                console.log(data);
+                if (data == "Saved")
+                {
+                    statusChange(1);
+                }else{
+                    //console.log(data);
+                    statusChange(2);
+                }
+            },
+            error: function(data) {
+                //error calling names
                 statusChange(2);
-            }
-        },
-        error: function(data) {
-            //error calling names
-            statusChange(2);
-        }, 
-    });
+            }, 
+        }); 
+    }else{
+        order = $.ajax({
+            type: 'POST',
+            url: './ajax.php',
+            data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, group: pagegroup},
+            success: function(data) {
+                if (data == "Saved")
+                {
+                    statusChange(1);
+                }else{
+                    //console.log(data);
+                    statusChange(2);
+                }
+            },
+            error: function(data) {
+                //error calling names
+                statusChange(2);
+            }, 
+        }); 
+    }
 }
 
 function fadeME(tag, start_color)
 {
-    the_color = parseInt(start_color, 16) + parseInt("010101", 16);
+    the_color = parseInt(start_color, 16) + parseInt("010001", 16);
     new_color = "#" + the_color.toString(16);
     while (new_color.length < 7)
     {
@@ -141,7 +163,7 @@ function loadPage()
     order = $.ajax({
         type: 'POST',
         url: './ajax.php',
-        data: {type: 'getPunches', start_day: start_time},
+        data: {type: 'getPunches', group: pagegroup, start_day: start_time},
         success: function(data) {
             parsedJson = JSON.parse(data);
             for (i = 0; i < parsedJson.length; i++)
@@ -363,5 +385,60 @@ function statusChange(passedStatus)
             alert("An Error has occured, please refresh page");
             break;
     }
-    setTimeout(function() {	fadeME("#pageStatus", "007b12") }, 500 );
+    setTimeout(function() {	fadeME("#pageStatus", "00FF00") }, 500 );
+}
+
+
+function selectUser()
+{
+    wipeBoard(false);
+    pageoverride = true;
+    $('#pageStatus').html("Loading...");
+    for (k = 1; k < 15; k++)
+    {
+        savedData['day' + k] = 0;
+        drawDay(k);
+    }
+    
+    origin = new Date(start_time * 1000);
+    order = $.ajax({
+        type: 'POST',
+        url: './ajax.php',
+        data: {type: 'getPunches', group: pagegroup, start_day: start_time, override: $('#SaveAsUser').val()},
+        success: function(data) {
+            parsedJson = JSON.parse(data);
+            for (i = 0; i < parsedJson.length; i++)
+            {
+                IE_Fix_String = parsedJson[i]['startTime'];
+                IE_Date = IE_Fix_String.split(" ");
+                IE_Time = IE_Date[1].split(":");
+                IE_Date = IE_Date[0].split("-");
+                plexis = new Date(IE_Date[0], IE_Date[1] - 1, IE_Date[2], IE_Time[0], IE_Time[1], IE_Time[2]);
+                day = Math.floor((plexis.getTime() - origin.getTime() + (60*60*24*1000)) / (60*60*24*1000));
+                if (plexis.getMinutes() == 0)
+                {
+                    half = 0;
+                    $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+                    savedData['hour' + day + "_" + plexis.getHours() + "_0"] = 1;
+                    savedData['day' + day] += 0.5;
+                }else{
+                    if (plexis.getMinutes() == 30)
+                    {
+                        half = 2;
+                        $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+                        savedData['hour' + day + "_" + plexis.getHours() + "_2"] = 1;
+                        savedData['day' + day] += 0.5;
+                    }else{
+                        //half = 1;
+                    }
+                }
+                drawDay(day);
+            }
+            statusChange(1);
+        },
+        error: function(data) {
+            //error calling names
+        }, 
+    });
+    
 }

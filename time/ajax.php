@@ -139,7 +139,7 @@
 	    
 	    //day: the_day, hour: passedHour, quarter: passedQuarter, punch: passedUsedTime, mode: "half"
 	    case "punchClock":
-		if (isset($_REQUEST['day']) && isset($_REQUEST['end_time']) && isset($_REQUEST['start_time']) && isset($_REQUEST['punch']))
+		if (isset($_REQUEST['day']) && isset($_REQUEST['end_time']) && isset($_REQUEST['start_time']) && isset($_REQUEST['punch']) && isset($_REQUEST['group']))
 		{
 		    //echo "Day: " . $_REQUEST['day'] . ", start: " . $_REQUEST['start_time'] . ", end: " . $_REQUEST['end_time'] . " punch: " . $_REQUEST['punch'];
 		    
@@ -151,45 +151,96 @@
 			$isOpposite = 1;
 		    }
 		    
-		    //if the db isnt connected, escape strign does not work!
-		    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `status`='" . $isOpposite . "';";
-		    //echo $query;
-		    $RESULT = database_helper::db_return_array($query);
-		    $insert = false;
-		    foreach($RESULT as $row)
+		    if (isset($_REQUEST['override']))
 		    {
-			//we have times on that day lets see if they overlap the time we are trying to do
-			$front = strtotime($row['startTime']);
-			$tail = strtotime($row['stopTime']);
-			$seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['start_time']);
-			$rear_seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['end_time']);
-			//we are assuming that everyone is using this interface in v0.1
-			if ($front == $seeker)
+			$privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
+			if($privilege >= 2)
 			{
-			    if (intval($_REQUEST['punch']) != intval($row['status']))
+			    //if the db isnt connected, escape strign does not work!
+			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`='" . mysql_escape_string($_REQUEST['group']) . " AND `status`='" . $isOpposite . "';";
+			    //echo $query;
+			    $RESULT = database_helper::db_return_array($query);
+			    $insert = false;
+			    foreach($RESULT as $row)
 			    {
-				//Do update
-				$result = database_helper::db_insert_query("UPDATE  `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
-				if ($result == '0')
+				//we have times on that day lets see if they overlap the time we are trying to do
+				$front = strtotime($row['startTime']);
+				$tail = strtotime($row['stopTime']);
+				$seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['start_time']);
+				$rear_seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['end_time']);
+				//we are assuming that everyone is using this interface in v0.1
+				if ($front == $seeker)
+				{
+				    if (intval($_REQUEST['punch']) != intval($row['status']))
+				    {
+					//Do update
+					$result = database_helper::db_insert_query("UPDATE  `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
+					if ($result == '0')
+					    echo "Saved";
+					else
+					    echo "Error";
+					$insert = true;
+				    }else{
+					//trying to punch again?
+					$insert = true;
+				    }
+				}
+			    }
+			    
+			    //now we have the overlapping areas and need to adjust accoringly
+			    if ($insert == false)
+			    {
+				$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM groups WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));");
+				if ($result != false){
 				    echo "Saved";
-				else
+				    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');";
+				}else
 				    echo "Error";
-				$insert = true;
-			    }else{
-				//trying to punch again?
-				$insert = true;
+			    }
+			}else{
+			    //security problem
+			}
+		    }else{
+			//if the db isnt connected, escape strign does not work!
+			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM groups WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . ") AND `status`='" . $isOpposite . "';";
+			//echo $query;
+			$RESULT = database_helper::db_return_array($query);
+			$insert = false;
+			foreach($RESULT as $row)
+			{
+			    //we have times on that day lets see if they overlap the time we are trying to do
+			    $front = strtotime($row['startTime']);
+			    $tail = strtotime($row['stopTime']);
+			    $seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['start_time']);
+			    $rear_seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['end_time']);
+			    //we are assuming that everyone is using this interface in v0.1
+			    if ($front == $seeker)
+			    {
+				if (intval($_REQUEST['punch']) != intval($row['status']))
+				{
+				    //Do update
+				    $result = database_helper::db_insert_query("UPDATE  `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
+				    if ($result == '0')
+					echo "Saved";
+				    else
+					echo "Error";
+				    $insert = true;
+				}else{
+				    //trying to punch again?
+				    $insert = true;
+				}
 			    }
 			}
-		    }
-		    
-		    //now we have the overlapping areas and need to adjust accoringly
-		    if ($insert == false)
-		    {
-			$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1');");
-			if ($result != false)
-			    echo "Saved";
-			else
-			    echo "Error";
+			
+			//now we have the overlapping areas and need to adjust accoringly
+			if ($insert == false)
+			{
+			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');");
+			    if ($result != false)
+				echo "Saved";
+			    else
+				echo "Error";
+			}
 		    }
 		    
 		}else{
@@ -197,12 +248,24 @@
 		}
 		break;
 	    case "getPunches":
-		if (isset($_REQUEST['start_day']))
+		if (isset($_REQUEST['start_day']) && isset($_REQUEST['group']))
 		{
 		    database_helper::db_connect();
-		    //echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `username`='" . time_auth::getUser() . "');";
-		    $result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
-		    echo json_encode($result);
+		    if (isset($_REQUEST['override']))
+		    {
+			$privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
+			if($privilege >= 2)
+			{
+			    $result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;");
+			    echo json_encode($result);
+			}else{
+			    //security report
+			}
+		    }else{
+			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `username`='" . time_auth::getUser() . "');";
+			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;");
+			echo json_encode($result);
+		    }
 		}else{
 		    echo "Invalid Post";
 		}
