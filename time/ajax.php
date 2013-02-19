@@ -157,7 +157,7 @@
 			if($privilege >= 2)
 			{
 			    //if the db isnt connected, escape strign does not work!
-			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`='" . mysql_escape_string($_REQUEST['group']) . " AND `status`='" . $isOpposite . "';";
+			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
 			    //echo $query;
 			    $RESULT = database_helper::db_return_array($query);
 			    $insert = false;
@@ -190,7 +190,7 @@
 			    //now we have the overlapping areas and need to adjust accoringly
 			    if ($insert == false)
 			    {
-				$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM groups WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));");
+				$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));");
 				if ($result != false){
 				    echo "Saved";
 				    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');";
@@ -202,7 +202,7 @@
 			}
 		    }else{
 			//if the db isnt connected, escape strign does not work!
-			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM groups WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . ") AND `status`='" . $isOpposite . "';";
+			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . ") AND `status`='" . $isOpposite . "';";
 			//echo $query;
 			$RESULT = database_helper::db_return_array($query);
 			$insert = false;
@@ -235,7 +235,7 @@
 			//now we have the overlapping areas and need to adjust accoringly
 			if ($insert == false)
 			{
-			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');");
+			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));");
 			    if ($result != false)
 				echo "Saved";
 			    else
