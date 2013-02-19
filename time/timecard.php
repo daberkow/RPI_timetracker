@@ -34,7 +34,7 @@
 	    </div>
 	    <div class="red_bar"></div>
 	    <div class="gray_bar"></div>
-	    <div id="working_area">
+	    <div id="working_area"  style='min-width: 915px;'>
 		    <?PHP
 			$privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
 			switch($privilege)
@@ -55,8 +55,8 @@
 				    }
 				    
 				    echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); </script>";
-				    echo "<div style='margin: auto;'>";
-				    echo "<div style='width: 100%; height: 35px; margin: auto;'><div style='width: 40%; display: inline-block;'><button style='width: 40px;' onclick='lastweek();'><--</button> Saved Templates: <select id='templates' style='width: 150px;' onclick='loadTemplate()'><option value=0>------</option>";
+				    echo "<div style='margin: auto; min-width: 915px;'>";
+				    echo "<div style='width: 100%; height: 35px; margin: auto; min-width: 915px;'><div style='width: 40%; min-width: 320px; display: inline-block;'><button style='width: 40px;' onclick='lastweek();'><--</button> Saved Templates: <select id='templates' style='width: 18%' onclick='loadTemplate()'><option value=0>------</option>";
 				    $templates = database_helper::db_return_array("SELECT * FROM `templates` WHERE `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1");
 				    foreach($templates as $template)
 				    {
@@ -65,7 +65,7 @@
 				    echo "</select>";
 				    if ($privilege >= 2)
 				    {
-					echo "Save as User: <select id='SaveAsUser' style='width: 150px;' onclick='selectUser()'><option value=0>------</option>";
+					echo "Save as User: <select id='SaveAsUser' style='width: 18%;' onclick='selectUser()'><option value=0>------</option>";
 					$Users = database_helper::db_return_array("SELECT users.id, users.username FROM `users` LEFT JOIN `groupusers` ON users.id=groupusers.userid WHERE groupusers.`groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "' ) AND (groupusers.`privilege`=1 OR groupusers.`privilege`=3)");
 					foreach($Users as $user)
 					{
@@ -73,8 +73,8 @@
 					}
 					echo "</select>";
 				    }
-				    echo "</div><div id='pageStatus' style='display: inline-block; width: 19%; text-align: center;'>Synced</div>
-					    <div style='width: 40%; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></div></div>";
+				    echo "</div><div id='pageStatus' style='display: inline-block; min-width: 185px; width: 19%; text-align: center;'>Synced</div>
+					    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></div></div>";
 				    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 				    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";
 				    for($i = 1; $i < 15; $i++)
