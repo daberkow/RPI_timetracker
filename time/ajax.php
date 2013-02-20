@@ -319,7 +319,7 @@
 		}
 		break;
 	    case "DBMacro":
-		if (isset($_REQUEST['macro_code']))
+		if (isset($_REQUEST['macro_code']) && isset($_REQUEST['group']))
 		{
 		    //1 is load template to start_date, 2 is wipe board for week with start_date
 		    switch (intval($_REQUEST['macro_code']))
@@ -348,7 +348,7 @@
 				    $end    = date('Y-m-d H:i',$punchTime+(60*29));
 				    //echo "<DIV>Start:" . $start . " End:" . $end . " </DIV>\n";
 				    
-				    $query = "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $start . "', '" . $end . "', now(),'1');";
+				    $query = "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $start . "', '" . $end . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));";
 				    
 				    //echo $query;
 				    $result = database_helper::db_insert_query($query);
@@ -372,7 +372,7 @@
 			    {
 				$theDate = explode("-",$_REQUEST['start_date']);
 				$newTime = mktime(0, 0, 0, $theDate[1], $theDate[2], $theDate[0]);
-				$query = "UPDATE `timetracker`.`timedata` SET `status`=0 AND `submitted`=NOW() WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1";
+				$query = "UPDATE `timetracker`.`timedata` SET `status`=0 AND `submitted`=NOW() WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1";
 				$result = database_helper::db_insert_query($query);
 				if ($result[0] == 'E')
 				{
@@ -398,8 +398,9 @@
 		    $totalhours = 0.0;
 		    if ($permission >= 2)
 		    {
-			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `status`=1;");
-			$users = database_helper::db_return_array("SELECT * FROM `users`;");
+			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1;");
+			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1";
+			$users = database_helper::db_return_array("Select `users`.`id`, `users`.`username` FROM `users` LEFT JOIN `groupusers` on `groupusers`.`userid`=`users`.`id` WHERE `groupusers`.`privilege`=1 or `groupusers`.`privilege`=3");
 			$Final_Array = array();
 			$dayArray = array(); // hey that rhymes
 			foreach($result as $row)
@@ -418,6 +419,7 @@
 			    $Endtime = mktime($Endtime[0],$Endtime[1]+1, $Endtime[2]);//make up for count by 0
 			    $totalTime = $Endtime - $Starttime;
 			    $Final_Array[$row['user']][$date] += ($totalTime/60);
+			    $Final_Array[$row['user']]['read'] = false;
 			    //$Final_Array[$row['user']]['name'] = $row['user'];
 			}
 			$flip = true;
@@ -429,6 +431,47 @@
 			}
 			echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>Total</td>";
 			echo "</tr>";
+			
+			foreach($users as $singleUser)
+			{
+			    if ($flip)
+			    {
+				echo "<tr style='background:#CCCCCC;'>";
+			    }else{
+				echo "<tr>";
+			    }
+			    $flip = !$flip;
+			    echo "<td>" . $singleUser['username'] . "</td>";
+			    //itterate through days
+			    $total = 0.0;
+			    for ($k = 0; $k < 14; $k++)
+			    {
+				$referenceDate = date('Y-m-d', mktime(0, 0, 0, $theDate[1], $theDate[2]+$k, $theDate[0]));
+				if (isset($Final_Array[$singleUser['id']][$referenceDate]))
+				{
+				    $Final_Array[$singleUser['id']]['read']=true;
+				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . ($Final_Array[$singleUser['id']][$referenceDate]/60) . "</td>";
+				    $total += ($Final_Array[$singleUser['id']][$referenceDate]/60);
+				    $dayArray[$referenceDate] += ($Final_Array[$singleUser['id']][$referenceDate]/60);
+				}else{
+				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
+				}
+			    }
+			    
+			    
+			    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $total . "</td>";
+			    $totalhours += $total;
+			    echo "</tr>";
+			}
+			/* This is was started if we want to show hours for removed users
+			foreach($Final_Array as $datapoint)
+			{
+			    if ($datapoint['read'] == false)
+			    {
+				
+			    }
+			}*/
+			/*
 			foreach($Final_Array as $user => $point)
 			{
 			    if ($flip)
@@ -465,7 +508,7 @@
 			    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $total . "</td>";
 			    $totalhours += $total;
 			    echo "</tr>";
-			}
+			}*/
 			if ($flip)
 			{
 			    echo "<tr style='background:#CCCCCC;'>";
@@ -479,12 +522,12 @@
 			    $referenceDate = date('Y-m-d', mktime(0, 0, 0, $theDate[1], $theDate[2]+$k, $theDate[0]));
 			    if (isset($dayArray[$referenceDate]))
 			    {
-				echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $dayArray[$referenceDate] . "</td>";
+				echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid; border-top-width: 2px;'>" . $dayArray[$referenceDate] . "</td>";
 			    }else{
-				echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
+				echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid; border-top-width: 2px;'>0</td>";
 			    }
 			}
-			echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $totalhours . "</td>";
+			echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid; border-top-width: 2px;'>" . $totalhours . "</td>";
 			echo "</tr></table>";
 			//print_r($result);
 		    }else{

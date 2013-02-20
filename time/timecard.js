@@ -256,7 +256,7 @@ function wipeBoard(shouldSave)
         order = $.ajax({
             type: 'POST',
             url: './ajax.php',
-            data: {type: 'DBMacro', macro_code: 2, start_date: FinishedDay},
+            data: {type: 'DBMacro', macro_code: 2, group: pagegroup, start_date: FinishedDay},
             success: function(data) {
                 if (data[0] == 'S')
                 {
@@ -339,7 +339,7 @@ function save_template_db()
         order = $.ajax({
             type: 'POST',
             url: './ajax.php',
-            data: {type: 'DBMacro', macro_code: 1,template: $('#templates').val(), start_date: FinishedDay},
+            data: {type: 'DBMacro', macro_code: 1,template: $('#templates').val(), group: pagegroup, start_date: FinishedDay},
             success: function(data) {
                 if (data[0] == 'S')
                 {

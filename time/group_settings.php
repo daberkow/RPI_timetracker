@@ -264,7 +264,7 @@
 					{
 					    case 1:
 						//was a 3, now is a 2 due to view removed
-						$("." + passedAccount + "2").remove();
+						$("." + passedAccount + "1").remove();
 						break;
 					    case 2:
 						//shouldnt happen
@@ -312,7 +312,7 @@
 				    {
 					case 1:
 					    //was a 3, now is a 2 due to view removed
-					    $("." + passedAccount + "2").remove();
+					    $("." + passedAccount + "1").remove();
 					    break;
 					case 2:
 					    //shouldnt happen

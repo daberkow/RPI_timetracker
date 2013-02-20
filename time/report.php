@@ -14,6 +14,7 @@
 	<title class = "title">Time Tracker Group</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
+	<link rel="stylesheet" type="text/css" media="print" href="./print.css" />
 	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
 	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
 	<script src="./report.js"></script>
@@ -60,7 +61,7 @@
 	    </div>
 	    
 	    <!-- NEW SECTION! -->
-	    <hr>
+	    <hr class='splitter'>
 	    <div id="footer">
 		    <?PHP include("./footer.php"); ?>
 	    </div>

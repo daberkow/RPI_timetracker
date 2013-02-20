@@ -1,0 +1,16 @@
+body {
+    width:100%;
+    height:100%;
+    border: 0px;
+}
+
+#main{
+    border: 0px;
+}
+
+#footer, #title, .red_bar, .splitter, button{
+    display: none;
+}
+
+
+@page {size: landscape}
