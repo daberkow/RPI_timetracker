@@ -418,7 +418,13 @@
 			    $Starttime = mktime($Starttime[0],$Starttime[1], $Starttime[2]);
 			    $Endtime = mktime($Endtime[0],$Endtime[1]+1, $Endtime[2]);//make up for count by 0
 			    $totalTime = $Endtime - $Starttime;
-			    $Final_Array[$row['user']][$date] += ($totalTime/60);
+			    if (isset($Final_Array[$row['user']][$date]))
+			    {
+				$Final_Array[$row['user']][$date] += ($totalTime/60);
+			    }else{
+				$Final_Array[$row['user']][$date] = ($totalTime/60);
+			    }
+			    
 			    $Final_Array[$row['user']]['read'] = false;
 			    //$Final_Array[$row['user']]['name'] = $row['user'];
 			}
@@ -452,7 +458,11 @@
 				    $Final_Array[$singleUser['id']]['read']=true;
 				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . ($Final_Array[$singleUser['id']][$referenceDate]/60) . "</td>";
 				    $total += ($Final_Array[$singleUser['id']][$referenceDate]/60);
-				    $dayArray[$referenceDate] += ($Final_Array[$singleUser['id']][$referenceDate]/60);
+				    if (isset($dayArray[$referenceDate])){
+					    $dayArray[$referenceDate] += (($Final_Array[$singleUser['id']][$referenceDate])/60);
+				    }else{
+					    $dayArray[$referenceDate] = (($Final_Array[$singleUser['id']][$referenceDate])/60);
+				    }
 				}else{
 				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
 				}
