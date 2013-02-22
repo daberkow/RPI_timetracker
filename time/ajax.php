@@ -157,7 +157,7 @@
 			if($privilege >= 2)
 			{
 			    //if the db isnt connected, escape strign does not work!
-			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
+			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
 			    //echo $query;
 			    $RESULT = database_helper::db_return_array($query);
 			    $insert = false;
@@ -190,7 +190,7 @@
 			    //now we have the overlapping areas and need to adjust accoringly
 			    if ($insert == false)
 			    {
-				$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));");
+				$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));");
 				if ($result != false){
 				    echo "Saved";
 				    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');";
@@ -202,7 +202,7 @@
 			}
 		    }else{
 			//if the db isnt connected, escape strign does not work!
-			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . ") AND `status`='" . $isOpposite . "';";
+			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . ") AND `status`='" . $isOpposite . "';";
 			//echo $query;
 			$RESULT = database_helper::db_return_array($query);
 			$insert = false;
@@ -235,7 +235,7 @@
 			//now we have the overlapping areas and need to adjust accoringly
 			if ($insert == false)
 			{
-			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));");
+			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));");
 			    if ($result != false)
 				echo "Saved";
 			    else
@@ -312,7 +312,7 @@
 		if (isset($_REQUEST['template']))
 		{
 		    database_helper::db_connect();
-		    $template = database_helper::db_return_row("SELECT `data` FROM `templates` WHERE `id`=" . mysql_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
+		    $template = database_helper::db_return_row("SELECT `data` FROM `templates` WHERE `id`=" . mysql_real_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
 		    echo json_encode($template);
 		}else{
 		    echo "Invalid Post";
@@ -329,7 +329,7 @@
 			    {
 				$theDate = explode("-",$_REQUEST['start_date']);
 				database_helper::db_connect();
-				$template = database_helper::db_return_row("SELECT `data` FROM `templates` WHERE `id`=" . mysql_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
+				$template = database_helper::db_return_row("SELECT `data` FROM `templates` WHERE `id`=" . mysql_real_escape_string($_REQUEST['template']) . " AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;");
 				$data = (string) $template[0][0];
 				$data = explode(",", $data);
 				$error = false;
@@ -348,7 +348,7 @@
 				    $end    = date('Y-m-d H:i',$punchTime+(60*29));
 				    //echo "<DIV>Start:" . $start . " End:" . $end . " </DIV>\n";
 				    
-				    $query = "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $start . "', '" . $end . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "'));";
+				    $query = "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $start . "', '" . $end . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));";
 				    
 				    //echo $query;
 				    $result = database_helper::db_insert_query($query);
@@ -372,7 +372,7 @@
 			    {
 				$theDate = explode("-",$_REQUEST['start_date']);
 				$newTime = mktime(0, 0, 0, $theDate[1], $theDate[2], $theDate[0]);
-				$query = "UPDATE `timetracker`.`timedata` SET `status`=0 AND `submitted`=NOW() WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1";
+				$query = "UPDATE `timetracker`.`timedata` SET `status`=0 AND `submitted`=NOW() WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1";
 				$result = database_helper::db_insert_query($query);
 				if ($result[0] == 'E')
 				{
@@ -398,7 +398,7 @@
 		    $totalhours = 0.0;
 		    if ($permission >= 2)
 		    {
-			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1;");
+			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;");
 			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1";
 			$users = database_helper::db_return_array("Select `users`.`id`, `users`.`username` FROM `users` LEFT JOIN `groupusers` on `groupusers`.`userid`=`users`.`id` WHERE `groupusers`.`privilege`=1 or `groupusers`.`privilege`=3");
 			$Final_Array = array();

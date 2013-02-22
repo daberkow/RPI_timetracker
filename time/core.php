@@ -436,17 +436,17 @@ class database_helper {
 }
 
 class timetracker {
-	public function get_version()
+	public static function get_version()
 	{
 		return "0.1.5";
 	}
 	
-	public function get_group_page($groupID)
+	public static function get_group_page($groupID)
 	{
 		
 	}
 	
-	public function get_First_day($date)
+	public static function get_First_day($date)
 	{
 		$nowDate = $date;
 		$startDate = strtotime("January 3, 2002");
@@ -462,7 +462,7 @@ class timetracker {
 		return $startDate;
 	}
 	
-	public function draw_week()
+	public static function draw_week()
 	{
 		If (isset($_REQUEST['date']))
 		{
