@@ -74,7 +74,7 @@
 					echo "</select>";
 				    }
 				    echo "</div><div id='pageStatus' style='display: inline-block; min-width: 185px; width: 19%; text-align: center;'>Synced</div>
-					    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></div></div>";
+					    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></button></div></div>";
 				    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 				    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";
 				    for($i = 1; $i < 15; $i++)
