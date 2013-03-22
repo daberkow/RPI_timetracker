@@ -53,10 +53,6 @@ class database_helper {
             $return_array = array();
             //echo $query;
             $main_result = mysql_query($passed_query);
-            if (mysql_num_rows($main_result) == 0)
-            {
-                return $return_array;
-            }
             if ($main_result)
             {
                 while($main_row = mysql_fetch_array($main_result))
@@ -438,7 +434,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "0.1.6";
+		return "0.1.8";
 	}
 	
 	public static function get_group_page($groupID)

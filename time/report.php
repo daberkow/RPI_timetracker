@@ -53,7 +53,8 @@
 							</tr>
 							</table>
 							<div id='tableArea' style='margin:auto; width: 90%; border-width:1px; border-style:solid;'>
-							</div>";
+							</div>
+							<div style='width: 200px; margin: auto;'><button id='locker' style='width: 200px;' onclick='lock()'>Lock Time Cards</button></div>";
 							
 						break;
 				}

@@ -9,7 +9,7 @@ function lastweek()
         var d = new Date((start_time * 1000) + ((i-1)*(60*60*24*1000)));
         $(".day" + i + "Name").html((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
     }
-    loadPage();
+    loadPage(0);
 }
 
 function nextweek()
@@ -21,48 +21,53 @@ function nextweek()
         var d = new Date((start_time * 1000) + ((i-1)*(60*60*24*1000)));
         $(".day" + i + "Name").html((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
     }
-    loadPage();
+    loadPage(0);
 }
 
 
 //this functions are for the grid interface
 function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed)
 {
-    $('#pageStatus').html("Saving");
-    //start_time is first day time in unix timetamp, not javascript
-    if (passedHalf == 30)
-    {
-        half = 2;
+    if (locked == 2) {
+        alert("This time period has been locked");
+        return;
     }else{
-        half = 0;
-    }
-    if (typeof(savedData['hour' + passedDay + "_" + passedHour + "_" + half]) == "undefined")
-    {
-        savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
-        $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
-        if (typeof(savedData['day' + passedDay]) == "undefined")
+        $('#pageStatus').html("Saving");
+        //start_time is first day time in unix timetamp, not javascript
+        if (passedHalf == 30)
         {
-            savedData['day' + passedDay] = 0.5;
+            half = 2;
         }else{
-            savedData['day' + passedDay] += 0.5;
+            half = 0;
         }
-        punch(passedDay, passedHour, passedHalf, passedTimePassed, 1); 
-    }else{ 
-        //already has value, savedDay shoudl too
-        if (savedData['hour' + passedDay + "_" + passedHour + "_" + half] == 1)
+        if (typeof(savedData['hour' + passedDay + "_" + passedHour + "_" + half]) == "undefined")
         {
-            savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 0;
-            $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "transparent");
-            savedData['day' + passedDay] -= 0.5;
-            punch(passedDay, passedHour, passedHalf, passedTimePassed, 0); 
-        }else{
             savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
             $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
-            savedData['day' + passedDay] += 0.5;
+            if (typeof(savedData['day' + passedDay]) == "undefined")
+            {
+                savedData['day' + passedDay] = 0.5;
+            }else{
+                savedData['day' + passedDay] += 0.5;
+            }
             punch(passedDay, passedHour, passedHalf, passedTimePassed, 1); 
+        }else{ 
+            //already has value, savedDay shoudl too
+            if (savedData['hour' + passedDay + "_" + passedHour + "_" + half] == 1)
+            {
+                savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 0;
+                $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "transparent");
+                savedData['day' + passedDay] -= 0.5;
+                punch(passedDay, passedHour, passedHalf, passedTimePassed, 0); 
+            }else{
+                savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
+                $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
+                savedData['day' + passedDay] += 0.5;
+                punch(passedDay, passedHour, passedHalf, passedTimePassed, 1); 
+            }
         }
+        drawDay(passedDay);
     }
-    drawDay(passedDay);
 }
 
 function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime)
@@ -102,6 +107,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
             url: './ajax.php',
             data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, group: pagegroup},
             success: function(data) {
+                console.log(data);
                 if (data == "Saved")
                 {
                     statusChange(1);
@@ -115,7 +121,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
                 statusChange(2);
             }, 
         }); 
-    }
+    }   
 }
 
 function fadeME(tag, start_color)
@@ -150,8 +156,14 @@ function submitTimeCard()// we save along the way this isnt needed
     });
 }
 
-function loadPage()
+function loadPage(passedRun)
 {
+    locked = 0;
+    check_status();
+    
+}
+
+function pageConfig() {
     $('#pageStatus').html("Loading...");
     for (k = 1; k < 15; k++)
     {
@@ -193,7 +205,13 @@ function loadPage()
                 }
                 drawDay(day);
             }
-            statusChange(1);
+            if (locked == 2) {
+                statusChange(3);
+            }else{
+                if (locked == 3) {
+                    statusChange(1);
+                }
+            }
         },
         error: function(data) {
             //error calling names
@@ -291,6 +309,10 @@ function wipeBoard(shouldSave)
 
 function loadTemplate()
 {
+    if (locked == 2) {
+        alert("This time period has been locked");
+        return;
+    }
     if ( parseInt($('#templates').val()) <= 0)
     {
         return;
@@ -384,6 +406,11 @@ function statusChange(passedStatus)
             $("#pageStatus").css("background-color", "red");
             alert("An Error has occured, please refresh page");
             break;
+        case 3:
+            $('#pageStatus').html("Time Card Locked! Total Hours: " + totalHours);
+            $("#pageStatus").css("background-color", "blue");
+            break;
+        
     }
     setTimeout(function() {	fadeME("#pageStatus", "00FF00") }, 500 );
 }
@@ -434,11 +461,42 @@ function selectUser()
                 }
                 drawDay(day);
             }
-            statusChange(1);
+            if (locked == 2) {
+                statusChange(3);
+            }else{
+                if (locked == 3) {
+                    statusChange(1);
+                }
+            }
         },
         error: function(data) {
             //error calling names
         }, 
     });
     
+}
+
+function check_status() {
+    locked = 0;
+    the_day = parseInt(start_time) * 1000;
+    CompleteDate = new Date(the_day);
+    sqlDate = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+    order = $.ajax({
+        type: 'POST',
+        url: './ajax.php',
+        data: {type: 'check_locked', start_date: sqlDate, group: pagegroup},
+        success: function(data) {
+            //console.log(data);
+            if (data == "locked") {//this is so it wont be confused with the sql entries
+                locked = 2;
+            }else{
+                locked = 3;
+            }
+            pageConfig();
+        },
+        error: function(data) {
+            //error calling names
+            
+        }, 
+    });
 }

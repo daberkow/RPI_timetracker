@@ -202,7 +202,7 @@
 			}
 		    }else{
 			//if the db isnt connected, escape strign does not work!
-			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . ") AND `status`='" . $isOpposite . "';";
+			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
 			//echo $query;
 			$RESULT = database_helper::db_return_array($query);
 			$insert = false;
@@ -262,7 +262,7 @@
 			    //security report
 			}
 		    }else{
-			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `username`='" . time_auth::getUser() . "');";
+			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;";
 			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['start_day']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['start_day']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;");
 			echo json_encode($result);
 		    }
@@ -442,7 +442,7 @@
 			{
 			    if ($flip)
 			    {
-				echo "<tr style='background:#CCCCCC;'>";
+				echo "<tr class='colored' style='background:#CCCCCC;'>";
 			    }else{
 				echo "<tr>";
 			    }
@@ -467,7 +467,6 @@
 				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
 				}
 			    }
-			    
 			    
 			    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $total . "</td>";
 			    $totalhours += $total;
@@ -521,7 +520,7 @@
 			}*/
 			if ($flip)
 			{
-			    echo "<tr style='background:#CCCCCC;'>";
+			    echo "<tr class='colored' style='background:#CCCCCC;'>";
 			}else{
 			    echo "<tr>";
 			}
@@ -541,14 +540,76 @@
 			echo "</tr></table>";
 			//print_r($result);
 		    }else{
-			echo "not enough permissions";
+			echo "Error not enough permissions";
 		    }
 		}else{
-		    echo "invalid post";
+		    echo "Error invalid post";
+		}
+		break;
+	    case "LockCards":
+		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']) && isset($_REQUEST['end_date']))  //start_date: sqlDate, group: groupName,
+		{
+		    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+		    if ($permission >= 2)
+		    {
+			$start = mysql_real_escape_string($_REQUEST['start_date']) . " 0:0:0";
+			$end = mysql_real_escape_string($_REQUEST['end_date']) . " 23:59:59";
+			
+			$result = database_helper::db_insert_query("INSERT INTO `timedata`(`user`,`startTime`,`stopTime`,`group`,`submitted`,`status`) VALUES('0', '" . $start . "', '" . $end . "',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'),  NOW(), 2)");
+			if ($result != false)
+			{
+			    echo $result;
+			}else{
+			    echo "Error Inserting";
+			}
+		    }else{
+			echo "Error Not enough permission";
+		    }
+		}else{
+		    echo "Error Invalid post";
+		}
+		break;
+	    case "unLockCards":
+		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']) && isset($_REQUEST['end_date']))  //start_date: sqlDate, group: groupName, length: 14
+		{
+		    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+		    if ($permission >= 2)
+		    {
+			$start = mysql_real_escape_string($_REQUEST['start_date']) . " 0:0:0";
+			$end = mysql_real_escape_string($_REQUEST['end_date']) . " 23:59:59";
+			//echo "UPDATE `timedata` SET `status`=3, `submitted`=NOW() WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `startTime`='" . $start . "' AND `stopTime`='" . $end . "' AND `status`=2";
+			$result = database_helper::db_insert_query("UPDATE `timedata` SET `status`=3, `submitted`=NOW() WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `startTime`='" . $start . "' AND `stopTime`='" . $end . "' AND `status`=2");
+			//echo $result;
+			if ($result == '0')
+			{
+			    echo $result;
+			}else{
+			    echo "Error Inserting";
+			}
+		    }else{
+			echo "Error Not enough permission";
+		    }
+		}else{
+		    echo "Error Invalid post";
+		}
+		break;
+	    case "check_locked":
+		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']))  //start_date: sqlDate, group: groupName
+		{
+		    $start_date = mysql_real_escape_string($_REQUEST['start_date']);
+		    $result = database_helper::db_return_array("SELECT COUNT(*) AS RESULT FROM `timedata` WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `startTime`='" . mysql_real_escape_string($start_date) . "' AND `status`=2");
+		    if (intval($result[0][0]) > 0)
+		    {
+			echo "locked";
+		    }else{
+			echo "unlocked";
+		    }
+		}else{
+		    echo "Error Invalid post";
 		}
 		break;
             default:
-                echo "No Type given";
+                echo "Error No Type given";
                 break;
         }
     }else{

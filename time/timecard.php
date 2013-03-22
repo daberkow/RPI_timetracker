@@ -21,11 +21,12 @@
 	    pagegroup = '<?PHP echo urlencode($_REQUEST['group']); ?>';
 	    pageuser = '<?PHP echo phpCAS::getUser(); ?>';
 	    pageoverride = false;
+	    locked = -1;
 	</script>
 	<script src="./timecard.js"></script>
 	
     </head>
-    <body onload='loadPage();'>
+    <body onload='loadPage(0);'>
 	<div id="main">
 	    <div id="title">
 		<div class="logo"></div>
