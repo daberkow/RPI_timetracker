@@ -3,8 +3,7 @@
 include_once('./cas/CAS.php');
 phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 // SSL!
-phpCAS::setCasServerCACert("./cas/cas-auth.rpi.edu");
-
+phpCAS::setCasServerCACert("./cas/CACert.pem");
 class database_helper {
 
 	public static function db_connect()
@@ -434,7 +433,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "0.1.8";
+		return "0.1.9";
 	}
 	
 	public static function get_group_page($groupID)
@@ -542,6 +541,50 @@ class timetracker {
 			}
 		    }
 		}
+	}
+	
+	public function groupEmailSetting($groupname, $type)
+	{
+		$privilege = intval(database_helper::db_group_privilege($groupname, phpCAS::getUser()));
+		if ($privilege >= 2)
+		{
+			$result = database_helper::db_return_array("SELECT `setting` FROM `email` WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . $groupname . "' LIMIT 0,1) AND `type`='" . $type . "' AND `user`=0");
+			if (isset($result[0][0]))
+			{
+				if(intval($result[0][0]) == 1)
+				{
+					return true;
+				}else{
+					return false;
+				}
+			}
+		}
+	}
+	public function userEmailSetting($groupname)
+	{
+		
+		$result = database_helper::db_return_array("SELECT `setting` FROM `email` WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . $groupname . "' LIMIT 0,1) AND `type`=1 AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' LIMIT 0,1)");
+		if (isset($result[0][0]))
+		{
+			if(intval($result[0][0]) == 1)
+			{
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			$result = database_helper::db_return_array("SELECT `setting` FROM `email` WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . $groupname . "' LIMIT 0,1) AND `type`=1 AND `user`=0");
+			if (isset($result[0][0]))
+			{
+				if(intval($result[0][0]) == 1)
+				{
+					return true;
+				}else{
+					return false;
+				}
+			}
+		}
+		
 	}
 }
 

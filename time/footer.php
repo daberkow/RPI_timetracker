@@ -42,10 +42,11 @@
                 }
             }
             echo "</select>";
+	    /*
 	    if ( 2 <= $privl)
 	    {
 		echo "<form name='input' action='./ajax.php' method='post'>New Group:<input type='hidden' name='type' value='newGroup'><input name='newGroupName' style='display: inline; width: 100px;' type='text'><input type='submit'></form>";
-	    }
+	    }*/
 	}
     ?>
 </div>

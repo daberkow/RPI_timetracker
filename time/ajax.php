@@ -608,6 +608,56 @@
 		    echo "Error Invalid post";
 		}
 		break;
+	    case "updateEmailGroup":
+		database_helper::db_connect();
+		if(isset($_REQUEST['group']) && isset($_REQUEST['setting']) && isset($_REQUEST['EmailSettingtype']))
+		{
+		    $privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
+		    if ($privilege >= 2)
+		    {
+			$result = database_helper::db_insert_query("UPDATE  `timetracker`.`email` SET  `setting` =  '" . mysql_real_escape_string($_REQUEST['setting']) . "' WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "' LIMIT 0,1) AND `type`='" . mysql_real_escape_string($_REQUEST['EmailSettingtype']) . "' AND `user`=0  LIMIT 1;");
+			if ($result == '0')
+			{
+			    echo $result;
+			}else{
+			    echo "Error Inserting";
+			}
+		    }
+		}else{
+		    echo "Error Invalid post";
+		}
+		break;
+	    case "updateUserEmail":
+		database_helper::db_connect();
+		if(isset($_REQUEST['group']) && isset($_REQUEST['setting']))
+		{
+		    $result = database_helper::db_return_array("SELECT COUNT(`id`) FROM `email` WHERE `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' LIMIT 0,1) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "' LIMIT 0,1) AND `type`=1");
+		    if (isset($result[0][0]))
+		    {
+			if (intval($result[0][0]) >= 1)
+			{
+			    $result = database_helper::db_insert_query("UPDATE `timetracker`.`email` SET `setting` =  '" . mysql_real_escape_string($_REQUEST['setting']) . "' WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "' LIMIT 0,1) AND `type`='1' AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' LIMIT 0,1)  LIMIT 1;");
+			    if ($result == '0')
+			    {
+				echo $result;
+			    }else{
+				echo "Error Inserting";
+			    }
+			}else{
+			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`email` (`id`, `user`, `group`, `setting`, `type`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' LIMIT 0,1), (SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "' LIMIT 0,1), '" . mysql_real_escape_string($_REQUEST['setting']) . "', '1');");
+			    if ($result != false)
+			    {
+				echo $result;
+			    }else{
+				echo "Error Inserting";
+			    }
+			}
+		    }
+		
+		}else{
+		    echo "Error Invalid post";
+		}
+		break;
             default:
                 echo "Error No Type given";
                 break;
@@ -615,4 +665,5 @@
     }else{
 	echo "error: not authenticted user";
     }
+    database_helper::db_disconnect();
 ?>

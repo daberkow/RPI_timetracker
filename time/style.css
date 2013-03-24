@@ -160,3 +160,14 @@ hr {
 .buttonLine{
 	height: 20px;
 }
+
+.timecardDay{
+	text-align: center;
+	width: 14%;
+	min-width: 150px;
+	height: 380px;
+	border-width: 1px;
+	border-color: black;
+	border-style: solid;
+	display: inline-block;
+}

@@ -90,7 +90,7 @@
                                 break;
                             case 2:
 			    case 3:
-				echo "<table id='owners' style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>";
+				echo "<table id='owners' style='width: 40%; min-width: 600px; margin: auto; text-align: center;'>";
                                 //Owners
 				echo "<tr><td style='min-width: 100px;'>Owner(s):</td><td style='min-width: 500px;'></td></tr>";
 				echo "<tr><td>Add Owner:</td><td><button onclick=\"findUser('ownerAdd', 'ownerPossible')\">Lookup</button><input id='ownerAdd' type='text' onkeydown=\"check_enter(event, 'ownerAdd', 2)\"/><button onclick=\"addtoOwners('ownerAdd', 2);\">Add</button><div id='ownerPossible'></div></td></tr>";
@@ -99,8 +99,8 @@
 				{
 				    echo "<tr class='" . $username . "2'><td></td><td>" . $username . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username . "', 2)\">Remove</span></td></td></tr>";
 				}
-				echo "</table>";
-				echo "<table id='users' style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>\n";
+				echo "</table><hr style='width:60%; margin: auto;'>";
+				echo "<table id='users' style='width: 40%; min-width: 600px; margin: auto; text-align: center;'>\n";
                                 
 				//Users
 				echo "<tr><td style='min-width: 100px;'>User(s):</td><td style='min-width: 500px;'></tr>";
@@ -110,10 +110,29 @@
 				{
 				    echo "<tr class='" . $username . "1'><td></td><td>" . $username . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username . "', 1)\">Remove</span></td></td></tr>";
 				}
-				echo "</table>";
+				echo "</table><hr style='width:60%; margin: auto;'>";
+
+				echo "<div style='width: 40%; min-width: 600px; margin:auto;'><span style='width: 240px; display: inline-block;'>Group Email Notifications: </span><span text-align: center;'><select id='emailNotAll'>";
 				
-				echo "<table style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>\n";
-                                
+				if (timetracker::groupEmailSetting(urlencode($_REQUEST['group']), 1))
+				{
+				    echo "<option selected>Enabled</option><option>Disabled</option></select>";
+				}else{
+				    echo "<option>Enabled</option><option selected>Disabled</option></select>";
+				}
+				
+				echo "<button onclick='updateGroupEmail();'>Submit</button><span id='allEmailUpdate'></span></span>";
+				echo "<div><span style='width: 240px;  display: inline-block;'>Allow users to disable notifications:</span><span ><select id='emailNotAllow'>";
+				if (timetracker::groupEmailSetting(urlencode($_REQUEST['group']), 2))
+				{
+				    echo "<option selected>Enabled</option><option>Disabled</option></select>";
+				}else{
+				    echo "<option>Enabled</option><option selected>Disabled</option></select>";
+				}
+				echo "<button onclick='updateuserEmail()'>Submit</button><span id='allEmailAllowUpdate'></span></span></div>";
+				echo "</div><hr style='width:60%; margin: auto;'>";
+
+				echo "<table style='width: 60%; min-width: 600px; margin: auto; text-align: center;'>\n";
 				//Users
 				$groupInfo = database_helper::db_return_row("SELECT `data` FROM `pages` WHERE `id`=(SELECT `page` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "')");
 				echo "<tr><td style='width: 15%;'>Group Page(HTML):</td><td style='min-width: 500px; '><form name='input' action='./ajax.php' method='post'><input type='hidden' name='type' value='pageUpdate'><input type='hidden' name='group' value='" . urlencode($_REQUEST['group']) . "'><textarea name='newPage' style='width: 90%; min-height:300px;'>" . urldecode($groupInfo[0][0]) . "</textarea></tr>";
@@ -151,91 +170,139 @@
 			    //error calling names
 			}, 
 		    });
-	    }
-	    
-	    function check_enter(e, passedBox, passedpriv)
-	    {
-		x = e.keyCode;
-		if (x == 13)
-		{
-		    addtoOwners(passedBox, passedpriv);
 		}
-	    }
 	    
-	    function changeColor(passedarrayPosition)
-	    {
-		if (JSONData["data"].length > 3)
+		function check_enter(e, passedBox, passedpriv)
 		{
-		    jDataLength = 2;
-		}else{
-		    jDataLength = JSONData["data"].length;
-		}
-		for(j = 0; j <= jDataLength; j++)
-		{
-		    if (passedarrayPosition == j)
+		    x = e.keyCode;
+		    if (x == 13)
 		    {
-			$(".Name" + j).css("background", "lightblue");
-			selected = j;
-		    }else{
-			$(".Name" + j).css("background", "white");
-			selected = j;
+			addtoOwners(passedBox, passedpriv);
 		    }
 		}
 		
-	    }
-	    
-	    function selectName(passedvalue, passedsearchbox)//add prvilege to this from box
-	    {
-		switch (passedsearchbox)
+		function changeColor(passedarrayPosition)
 		{
-		    case "userAdd":
-			$('#userAdd').val(JSONData["data"][passedvalue].rcsid);
-			addtoOwners('userAdd', 1);
-			break;
-		    case "ownerAdd":
-			$('#ownerAdd').val(JSONData["data"][passedvalue].rcsid);
-			addtoOwners('ownerAdd', 2);
-			break;
+		    if (JSONData["data"].length > 3)
+		    {
+			jDataLength = 2;
+		    }else{
+			jDataLength = JSONData["data"].length;
+		    }
+		    for(j = 0; j <= jDataLength; j++)
+		    {
+			if (passedarrayPosition == j)
+			{
+			    $(".Name" + j).css("background", "lightblue");
+			    selected = j;
+			}else{
+			    $(".Name" + j).css("background", "white");
+			    selected = j;
+			}
+		    }
+		    
 		}
 		
-	    }
-	    
-	    function addtoOwners(passedBox, passedpiv)
-	    {
-		switch (passedBox)
+		function selectName(passedvalue, passedsearchbox)//add prvilege to this from box
 		{
-		    case "userAdd":
-			accountType = "user";
-			break;
-		    case "ownerAdd":
-			accountType = "owner";
-			break;
-		}
-		order = $.ajax({
-		    type: 'POST',
-		    url: './ajax.php',
-		    data: {type: "addgroupperm", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: $('#' + passedBox).val(), priv: passedpiv},
-		    success: function(data) {
-			//console.log(data);
-			//Owners.push($('#ownerAdd').val());
-			
-			$("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>" + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
-			//$("#" + accountType + "s").append("<p>" + $('#' + passedBox).val() + "</p>");
-			$('#' + accountType + 'Add').val("");
-			$('#' + accountType + 'Possible').html("");
-		    },
-		    error: function(data) {
-			//console.log(data);
-		    }, 
-		});
-	    }
-	    
-	    function removeAccount(passedAccount, passedPriv)
-	    {
-		if (passedAccount == "<?PHP echo $user; ?>")
-		{
-		    if (confirm("Are you sure you want to remove privilege from yourself?"))
+		    switch (passedsearchbox)
 		    {
+			case "userAdd":
+			    $('#userAdd').val(JSONData["data"][passedvalue].rcsid);
+			    addtoOwners('userAdd', 1);
+			    break;
+			case "ownerAdd":
+			    $('#ownerAdd').val(JSONData["data"][passedvalue].rcsid);
+			    addtoOwners('ownerAdd', 2);
+			    break;
+		    }
+		    
+		}
+		
+		function addtoOwners(passedBox, passedpiv)
+		{
+		    switch (passedBox)
+		    {
+			case "userAdd":
+			    accountType = "user";
+			    break;
+			case "ownerAdd":
+			    accountType = "owner";
+			    break;
+		    }
+		    order = $.ajax({
+			type: 'POST',
+			url: './ajax.php',
+			data: {type: "addgroupperm", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: $('#' + passedBox).val(), priv: passedpiv},
+			success: function(data) {
+			    //console.log(data);
+			    //Owners.push($('#ownerAdd').val());
+			    
+			    $("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>" + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
+			    //$("#" + accountType + "s").append("<p>" + $('#' + passedBox).val() + "</p>");
+			    $('#' + accountType + 'Add').val("");
+			    $('#' + accountType + 'Possible').html("");
+			},
+			error: function(data) {
+			    //console.log(data);
+			}, 
+		    });
+		}
+		
+		function removeAccount(passedAccount, passedPriv)
+		{
+		    if (passedAccount == "<?PHP echo $user; ?>")
+		    {
+			if (confirm("Are you sure you want to remove privilege from yourself?"))
+			{
+			    CodeRun = $.ajax({
+				type: 'POST',
+				url: './ajax.php',
+				data: {type: "removeUser", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: passedAccount, priv: passedPriv},
+				success: function(data) {
+				    switch (data)
+				    {
+					//this is switching the new privilege
+					case "0":
+					    $("." + passedAccount + passedPriv).remove();
+					    break;
+					case "1":
+					    switch(passedPriv)
+					    {
+						case 1:
+						    //this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
+						    break;
+						case 2:
+						    //user to be a three and is now a 1
+						    $("." + passedAccount + "2").remove();
+						    break;
+					    }
+					    break;
+					case "2":
+					    switch(passedPriv)
+					    {
+						case 1:
+						    //was a 3, now is a 2 due to view removed
+						    $("." + passedAccount + "1").remove();
+						    break;
+						case 2:
+						    //shouldnt happen
+						    break;
+					    }
+					    break;
+					case "3":
+					    //this shouldnt happen if we just removed privilege for anything
+					    break;
+				    }
+				    //console.log(data);
+				},
+				error: function(data) {
+				    //error calling names
+				    //bug no error return
+				}, 
+			    });
+			}
+		    }else{
 			CodeRun = $.ajax({
 			    type: 'POST',
 			    url: './ajax.php',
@@ -283,55 +350,48 @@
 			    }, 
 			});
 		    }
-		}else{
-		    CodeRun = $.ajax({
+		}
+		
+		function updateGroupEmail() {
+		    $('#allEmailUpdate').html("Updating");
+		    var settingToSet = 0;
+		    if ($('#emailNotAll').val() == "Enabled") {
+			settingToSet = 1;
+		    }
+		
+		    order = $.ajax({
 			type: 'POST',
 			url: './ajax.php',
-			data: {type: "removeUser", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", username: passedAccount, priv: passedPriv},
+			data: {type: "updateEmailGroup", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", setting: settingToSet, EmailSettingtype: 1},
 			success: function(data) {
-			    switch (data)
-			    {
-				//this is switching the new privilege
-				case "0":
-				    $("." + passedAccount + passedPriv).remove();
-				    break;
-				case "1":
-				    switch(passedPriv)
-				    {
-					case 1:
-					    //this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
-					    break;
-					case 2:
-					    //user to be a three and is now a 1
-					    $("." + passedAccount + "2").remove();
-					    break;
-				    }
-				    break;
-				case "2":
-				    switch(passedPriv)
-				    {
-					case 1:
-					    //was a 3, now is a 2 due to view removed
-					    $("." + passedAccount + "1").remove();
-					    break;
-					case 2:
-					    //shouldnt happen
-					    break;
-				    }
-				    break;
-				case "3":
-				    //this shouldnt happen if we just removed privilege for anything
-				    break;
-			    }
 			    //console.log(data);
+			    $('#allEmailUpdate').html("Updated!");
 			},
 			error: function(data) {
-			    //error calling names
-			    //bug no error return
+			    $('#allEmailUpdate').html("Not Updated!");
 			}, 
 		    });
 		}
-	    }
+		function updateuserEmail() {
+		    $('#allEmailAllowUpdate').html("Updating");
+		    var settingToSet = 0;
+		    if ($('#emailNotAllow').val() == "Enabled") {
+			settingToSet = 1;
+		    }
+		
+		    order = $.ajax({
+			type: 'POST',
+			url: './ajax.php',
+			data: {type: "updateEmailGroup", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", setting: settingToSet, EmailSettingtype: 2},
+			success: function(data) {
+			    //console.log(data);
+			    $('#allEmailAllowUpdate').html("Updated!");
+			},
+			error: function(data) {
+			    $('#allEmailAllowUpdate').html("Not Updated!");
+			}, 
+		    });
+		}
 	    </script>
 	    
             <!-- NEW SECTION! -->
