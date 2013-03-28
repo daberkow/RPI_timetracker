@@ -333,7 +333,7 @@
 				$data = (string) $template[0][0];
 				$data = explode(",", $data);
 				$error = false;
-				for($i = 0; $i < sizeof($data); $i++)
+				for($i = 0; $i < sizeof($data)-1; $i++)
 				{
 				    $dateString = explode("_", $data[$i]);
 				    //0 is day, 1 is hour, 2 is 0 or 2 for 0 or 30;
