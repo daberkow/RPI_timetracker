@@ -274,7 +274,7 @@
 		if (isset($_REQUEST['dataString']) && isset($_REQUEST['temName']))
 		{
 		    database_helper::db_connect();
-		    $query = "SELECT * FROM `templateid` WHERE `name`='" . mysql_real_escape_string($_REQUEST['temName']) . "' AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;";
+		    $query = "SELECT * FROM `templates` WHERE `name`='" . mysql_real_escape_string($_REQUEST['temName']) . "' AND `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1;";
 		    $result = database_helper::db_return_array($query);
 		    if (sizeof($result) >= 1)
 		    {

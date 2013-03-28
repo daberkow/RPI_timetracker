@@ -7,6 +7,7 @@ Parts that arent finished:
     Email reminders
     Direct send to payrole
     Delete Template
+    Key setup to share info
     
 Back Burner:
     Basic Version
