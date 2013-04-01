@@ -420,7 +420,7 @@
 			    $Starttime = mktime($Starttime[0],$Starttime[1], $Starttime[2]);
 			    $Endtime = mktime($Endtime[0],$Endtime[1]+1, $Endtime[2]);//make up for count by 0
 			    $totalTime = $Endtime - $Starttime;
-			    echo $row['id'] . " " . $totalTime . "|";
+			    //echo $row['id'] . " " . $totalTime . "|";
 			    if (isset($Final_Array[$row['user']][$date]))
 			    {
 				$Final_Array[$row['user']][$date] += intval($totalTime/60);

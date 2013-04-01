@@ -87,7 +87,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
             url: './ajax.php',
             data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, override: $('#SaveAsUser').val(), group: pagegroup},
             success: function(data) {
-                console.log(data);
+                //console.log(data);
                 if (data == "Saved")
                 {
                     statusChange(1);
@@ -107,7 +107,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
             url: './ajax.php',
             data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, group: pagegroup},
             success: function(data) {
-                console.log(data);
+                //console.log(data);
                 if (data == "Saved")
                 {
                     statusChange(1);
