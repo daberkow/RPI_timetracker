@@ -191,6 +191,7 @@
 			    if ($insert == false)
 			    {
 				$result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));");
+				//echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));";
 				if ($result != false){
 				    echo "Saved";
 				    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');";
@@ -236,6 +237,7 @@
 			if ($insert == false)
 			{
 			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));");
+			    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));";
 			    if ($result != false)
 				echo "Saved";
 			    else
@@ -418,17 +420,19 @@
 			    $Starttime = mktime($Starttime[0],$Starttime[1], $Starttime[2]);
 			    $Endtime = mktime($Endtime[0],$Endtime[1]+1, $Endtime[2]);//make up for count by 0
 			    $totalTime = $Endtime - $Starttime;
+			    echo $row['id'] . " " . $totalTime . "|";
 			    if (isset($Final_Array[$row['user']][$date]))
 			    {
-				$Final_Array[$row['user']][$date] += ($totalTime/60);
+				$Final_Array[$row['user']][$date] += intval($totalTime/60);
 			    }else{
-				$Final_Array[$row['user']][$date] = ($totalTime/60);
+				$Final_Array[$row['user']][$date] = intval($totalTime/60);
 			    }
 			    
 			    $Final_Array[$row['user']]['read'] = false;
 			    //$Final_Array[$row['user']]['name'] = $row['user'];
 			}
 			$flip = true;
+			//print_r($Final_Array);
 			echo "<table style='border-style: solid; border-width:1px;'><tr style='border-style: solid; border-width:1px;'><td style='width: 20px;'></td>";
 			for ($k = 0; $k < 14; $k++)
 			{

@@ -3,7 +3,7 @@
 include_once('./cas/CAS.php');
 phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 // SSL!
-phpCAS::setCasServerCACert("./cas/CACert.pem");
+phpCAS::setCasServerCACert("../CACert.pem");//this is relative to the cas client.php file
 class database_helper {
 
 	public static function db_connect()
@@ -433,7 +433,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "0.1.9.2";
+		return "0.1.9.3";
 	}
 	
 	public static function get_group_page($groupID)

@@ -72,15 +72,15 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed)
 
 function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime)
 {//database saves in quarters, the javascript currently works in halfs
-    the_day = (parseInt(start_time) + ((passedDay-1) * 60*60*24)) * 1000;
-    CompleteDate = new Date(the_day);
+    var the_day = (parseInt(start_time) + ((passedDay-1) * 60*60*24)) * 1000;
+    var CompleteDate = new Date(the_day);
     CompleteDate.setHours(passedHour);
     CompleteDate.setMinutes(passedTime);
     //this works because the time is being used for one thing and the day is seperate
-    StartTime = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
-    FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
-    CompleteDate = new Date(CompleteDate.getTime() + (1000*60*(parseInt(passedDuration) - 1)));
-    StopTime  = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
+    var StartTime = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
+    var FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+    CompleteDate = new Date(CompleteDate.getTime() + (1000*(60*(parseInt(passedDuration) - 1))));
+    var StopTime  = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
     if (pageoverride) {
         order = $.ajax({
             type: 'POST',
@@ -121,7 +121,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
                 statusChange(2);
             }, 
         }); 
-    }   
+    }
 }
 
 function fadeME(tag, start_color)
@@ -268,9 +268,9 @@ function wipeBoard(shouldSave)
     if (shouldSave)
     {
         WipeBegun = 1;
-        the_day = parseInt(start_time) * 1000;
-        CompleteDate = new Date(the_day);
-        FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+        var the_day = parseInt(start_time) * 1000;
+        var CompleteDate = new Date(the_day);
+        var FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
         order = $.ajax({
             type: 'POST',
             url: './ajax.php',
@@ -354,9 +354,9 @@ function save_template_db()
 {
     //This wipebegun code is for a race condition between wiping and saving
     if (WipeBegun > 0) {
-        the_day = parseInt(start_time) * 1000;
-        CompleteDate = new Date(the_day);
-        FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+        var the_day = parseInt(start_time) * 1000;
+        var CompleteDate = new Date(the_day);
+        var FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
         
         order = $.ajax({
             type: 'POST',
@@ -478,9 +478,9 @@ function selectUser()
 
 function check_status() {
     locked = 0;
-    the_day = parseInt(start_time) * 1000;
-    CompleteDate = new Date(the_day);
-    sqlDate = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
+    var the_day = parseInt(start_time) * 1000;
+    var CompleteDate = new Date(the_day);
+    var sqlDate = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
     order = $.ajax({
         type: 'POST',
         url: './ajax.php',

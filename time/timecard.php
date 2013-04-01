@@ -114,8 +114,8 @@
 						break;
 					    default:
 						echo "<div class='buttonLine'>";
-						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00');\" id='hour" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
-						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30');\" id='hour" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
+						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
+						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
 						echo "</div>\n";
 						break;
 					}
