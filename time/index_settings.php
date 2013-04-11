@@ -21,7 +21,6 @@
         <link rel="stylesheet" type="text/css" href="./style.css"/>
         <link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
         <script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
-        <script src="./core.js"></script>
 	<script>
 	    lastHit = 0;
 	</script>
@@ -51,8 +50,9 @@
 			    
 			    foreach($ownerUsernames as $username)
 			    {
-				echo "<tr class='" . $username . "2'><td></td><td>" . $username . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username . "', 2)\">Remove</span></td></td></tr>";
+				echo "<tr class='" . $username[0] . "2'><td></td><td>" . $username[1] . " " . $username[2] . " >  " . $username[0] . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username[0] . "', 2)\">Remove</span></td></td></tr>";
 			    }
+			    echo "<tr><td>System Wide Name Search</td><td><button onclick='fetchNames();'>Search!</button>(Find first and last names for every user missing them)</td></tr>";
 			    echo "</table>";
 			    
 			    echo "</table>";
@@ -283,6 +283,20 @@
 			    }, 
 			});
 		}
+	    }
+	    
+	    function fetchNames() {
+		order = $.ajax({
+		    type: 'POST',
+		    url: './ajax.php',
+		    data: {type: "nameLookup"},
+		    success: function(data) {
+			alert('Name Search Complete');
+		    },
+		    error: function(data) {
+			//console.log(data);
+		    }, 
+		});
 	    }
 	    </script>
 	    

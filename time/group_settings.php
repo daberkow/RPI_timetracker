@@ -66,8 +66,7 @@
     <body>
         <div id="main">
             <div id="title">
-                    <div class="logo"></div>
-                    <a href="./index.php"><div id="logo">Time Tracker</div></a>
+                    <a href="./index.php"><div class="logo"></div><div id="logo">Time Tracker</div></a>
                     <div id="result"></div>
             </div>
             <div class="red_bar"></div>
@@ -97,7 +96,7 @@
                                 
 				foreach($ownerUsernames as $username)
 				{
-				    echo "<tr class='" . $username . "2'><td></td><td>" . $username . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username . "', 2)\">Remove</span></td></td></tr>";
+				    echo "<tr class='" . $username[0] . "2'><td></td><td>" . $username[1] . " " . $username[2] . " >  " . $username[0] . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username[0] . "', 2)\">Remove</span></td></td></tr>";
 				}
 				echo "</table><hr style='width:60%; margin: auto;'>";
 				echo "<table id='users' style='width: 40%; min-width: 600px; margin: auto; text-align: center;'>\n";
@@ -108,7 +107,7 @@
                                 
 				foreach($usersUsernames as $username)
 				{
-				    echo "<tr class='" . $username . "1'><td></td><td>" . $username . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username . "', 1)\">Remove</span></td></td></tr>";
+				    echo "<tr class='" . $username[0] . "1'><td></td><td>" . $username[1] . " " . $username[2] . " >  " . $username[0] . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username[0] . "', 1)\">Remove</span></td></td></tr>";
 				}
 				echo "</table><hr style='width:60%; margin: auto;'>";
 
@@ -144,7 +143,8 @@
             </div>
             
 	    <script>
-		function findUser( passedSearchBox, passedFillBox){//ownerAdd
+		function findUser( passedSearchBox, passedFillBox)
+		{//ownerAdd
 		    var newHit = new Date().getTime();
 		    if ((newHit - lastHit) < 500)
 		    {

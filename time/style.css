@@ -138,36 +138,3 @@ hr {
 	text-align: center;
 	font-size: 16px;
 }
-
-.myButton_right{
-
-	
-}
-
-.myButton_left{
-	border-right-width: 0px;
-}
-
-.mybutton{
-	font-size: 10px;
-	width: 50px;
-	height: 90%;
-	border-width: 1px;
-	border-style: solid;
-	display: inline-block;
-}
-
-.buttonLine{
-	height: 20px;
-}
-
-.timecardDay{
-	text-align: center;
-	width: 14%;
-	min-width: 150px;
-	height: 380px;
-	border-width: 1px;
-	border-color: black;
-	border-style: solid;
-	display: inline-block;
-}

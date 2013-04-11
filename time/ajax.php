@@ -402,7 +402,7 @@
 		    {
 			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;");
 			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1";
-			$users = database_helper::db_return_array("Select `users`.`id`, `users`.`username` FROM `users` LEFT JOIN `groupusers` on `groupusers`.`userid`=`users`.`id` WHERE `groupusers`.`privilege`=1 or `groupusers`.`privilege`=3");
+			$users = database_helper::db_return_array("Select `users`.`id`, `users`.`username`, `users`.`fname`, `users`.`lname` FROM `users` LEFT JOIN `groupusers` on `groupusers`.`userid`=`users`.`id` WHERE `groupusers`.`privilege`=1 or `groupusers`.`privilege`=3");
 			$Final_Array = array();
 			$dayArray = array(); // hey that rhymes
 			foreach($result as $row)
@@ -446,12 +446,12 @@
 			{
 			    if ($flip)
 			    {
-				echo "<tr class='colored' style='background:#CCCCCC;'>";
+				echo "<tr class='colored'>";
 			    }else{
 				echo "<tr>";
 			    }
 			    $flip = !$flip;
-			    echo "<td>" . $singleUser['username'] . "</td>";
+			    echo "<td>" . $singleUser['fname'] . " " . $singleUser['lname'] . "</td>";
 			    //itterate through days
 			    $total = 0.0;
 			    for ($k = 0; $k < 14; $k++)
@@ -460,7 +460,7 @@
 				if (isset($Final_Array[$singleUser['id']][$referenceDate]))
 				{
 				    $Final_Array[$singleUser['id']]['read']=true;
-				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . ($Final_Array[$singleUser['id']][$referenceDate]/60) . "</td>";
+				    echo "<td class='cell'>" . ($Final_Array[$singleUser['id']][$referenceDate]/60) . "</td>";
 				    $total += ($Final_Array[$singleUser['id']][$referenceDate]/60);
 				    if (isset($dayArray[$referenceDate])){
 					    $dayArray[$referenceDate] += (($Final_Array[$singleUser['id']][$referenceDate])/60);
@@ -476,52 +476,6 @@
 			    $totalhours += $total;
 			    echo "</tr>";
 			}
-			/* This is was started if we want to show hours for removed users
-			foreach($Final_Array as $datapoint)
-			{
-			    if ($datapoint['read'] == false)
-			    {
-				
-			    }
-			}*/
-			/*
-			foreach($Final_Array as $user => $point)
-			{
-			    if ($flip)
-			    {
-				echo "<tr style='background:#CCCCCC;'>";
-			    }else{
-				echo "<tr>";
-			    }
-			    $flip = !$flip;
-			    $myusername = "";
-			    foreach($users as $userRow)
-			    {
-				if ($userRow['id'] == $user)
-				{
-				    $myusername = $userRow['username'];
-				}
-			    }
-			    echo "<td>$myusername</td>";
-			    
-			    //itterate through days
-			    $total = 0.0;
-			    for ($k = 0; $k < 14; $k++)
-			    {
-				$referenceDate = date('Y-m-d', mktime(0, 0, 0, $theDate[1], $theDate[2]+$k, $theDate[0]));
-				if (isset($point[$referenceDate]))
-				{
-				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . ($point[$referenceDate]/60) . "</td>";
-				    $total += ($point[$referenceDate]/60);
-				    $dayArray[$referenceDate] += ($point[$referenceDate]/60);
-				}else{
-				    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>0</td>";
-				}
-			    }
-			    echo "<td style='border-width: 0px; border-left-width:1px; border-bottom-width:1px; border-style:solid;'>" . $total . "</td>";
-			    $totalhours += $total;
-			    echo "</tr>";
-			}*/
 			if ($flip)
 			{
 			    echo "<tr class='colored' style='background:#CCCCCC;'>";
@@ -660,6 +614,38 @@
 		
 		}else{
 		    echo "Error Invalid post";
+		}
+		break;
+	    case "nameLookup"://this jsut requires any authenticated user
+		if (isset($_REQUEST['username']))
+		{
+		    include('./ldap.php');
+		    database_helper::db_connect();//this is needed for the escape string
+		    $Users = database_helper::db_return_array("SELECT `id`,`username` FROM `users` WHERE `username`='" . mysql_real_escape_string($_REQUEST['username']) . "';");
+		    //print_r($Users);
+		    foreach ($Users as $User)
+		    {
+			$returned = LDAP::LDAPUIDSEARCH($User[1]);
+			//print_r($returned);
+			if (sizeof($returned) == 1){
+			    echo "<p>Update ". $User[1] . " row:" . $User[0]. " " . $returned[0][0] . " " . $returned[0][1] . "</p>";
+			    $result = database_helper::db_insert_query("UPDATE `users` SET `lname`='" . $returned[0][1] . "', `fname`='" . $returned[0][0] . "' WHERE `id`='" . $User[0] . "';");
+			}
+		    }
+		}else{
+		    //here is looking for everyone
+		    include('./ldap.php');
+		    $Users = database_helper::db_return_array("SELECT `id`,`username` FROM `users` WHERE `fname`='' OR `lname`=''");
+		    //print_r($Users);
+		    foreach ($Users as $User)
+		    {
+			$returned = LDAP::LDAPUIDSEARCH($User[1]);
+			//print_r($returned);
+			if (sizeof($returned) == 1){
+			    echo "<p>Update ". $User[1] . " row:" . $User[0]. " " . $returned[0][0] . " " . $returned[0][1] . "</p>";
+			    $result = database_helper::db_insert_query("UPDATE `users` SET `lname`='" . $returned[0][1] . "', `fname`='" . $returned[0][0] . "' WHERE `id`='" . $User[0] . "';");
+			}
+		    }
 		}
 		break;
             default:

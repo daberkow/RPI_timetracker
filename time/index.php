@@ -35,8 +35,7 @@
 		<!-- DIVS! -->
 		<div id="main">
 			<div id="title">
-				<div class="logo"></div>
-				<a href="./index.php"><div id="logo">Time Tracker</div></a>
+				<a href="./index.php"><div class="logo"></div><div id="logo">Time Tracker</div></a>
 				<div id="result"></div>
 			</div>
 			<div class="red_bar"></div>

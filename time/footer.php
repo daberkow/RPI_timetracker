@@ -23,7 +23,7 @@
         }
     ?>	
 </div>
-<div id="version">v<?PHP echo timetracker::get_version(); ?><a href="https://github.com/daberkow/RPI_timetracker">Source</a></a></div> <!-- YAY -->
+<div id="version">v<?PHP echo timetracker::get_version(); ?> <a href="https://github.com/daberkow/RPI_timetracker">Source</a></a></div> <!-- YAY -->
 <div id="options">
     <?PHP
         if ($authed)

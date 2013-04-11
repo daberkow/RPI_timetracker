@@ -16,6 +16,37 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
+	<style>
+	    .myButton_right{
+	    }
+	    
+	    .myButton_left{
+		border-right-width: 0px;
+	    }
+	    
+	    .mybutton{
+		font-size: 10px;
+		width: 50px;
+		height: 90%;
+		border-width: 1px;
+		border-style: solid;
+		display: inline-block;
+	    }
+	    .buttonLine{
+		height: 20px;
+	    }
+	    .timecardDay{
+		text-align: center;
+		width: 14%;
+		min-width: 150px;
+		height: 380px;
+		border-width: 1px;
+		border-color: black;
+		border-style: solid;
+		display: inline-block;
+	    }
+
+	</style>
 	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
 	<script type="application/x-javascript">
 	    pagegroup = '<?PHP echo urlencode($_REQUEST['group']); ?>';
@@ -24,13 +55,11 @@
 	    locked = -1;
 	</script>
 	<script src="./timecard.js"></script>
-	
     </head>
     <body onload='loadPage(0);'>
 	<div id="main">
 	    <div id="title">
-		<div class="logo"></div>
-		<a href="./index.php"><div id="logo">Time Tracker</div></a>
+		<a href="./index.php"><div class="logo"></div><div id="logo">Time Tracker</div></a>
 		<div id="result"></div>
 	    </div>
 	    <div class="red_bar"></div>

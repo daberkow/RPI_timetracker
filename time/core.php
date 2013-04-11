@@ -3,7 +3,7 @@
 include_once('./cas/CAS.php');
 phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 // SSL!
-phpCAS::setCasServerCACert("../CACert.pem");//this is relative to the cas client.php file
+phpCAS::setCasServerCACert("./cas/CACert.pem");//this is relative to the cas client.php file
 class database_helper {
 
 	public static function db_connect()
@@ -135,8 +135,8 @@ class database_helper {
 		$returnedNames = array();
 		for($i = 0; $i < sizeof($passed_array); $i++)
 		{
-			$temp_array = database_helper::db_return_row("SELECT username FROM `users` WHERE `id`=" . $passed_array[$i][0] . ";");
-			array_push($returnedNames, $temp_array[0][0]);
+			$temp_array = database_helper::db_return_row("SELECT username, fname, lname FROM `users` WHERE `id`=" . $passed_array[$i][0] . ";");
+			array_push($returnedNames, $temp_array[0]);
 		}
 		return $returnedNames;
 	}
@@ -433,7 +433,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "0.1.9.4";
+		return "0.2.0";
 	}
 	
 	public static function get_group_page($groupID)
@@ -543,7 +543,7 @@ class timetracker {
 		}
 	}
 	
-	public function groupEmailSetting($groupname, $type)
+	public static function groupEmailSetting($groupname, $type)
 	{
 		$privilege = intval(database_helper::db_group_privilege($groupname, phpCAS::getUser()));
 		if ($privilege >= 2)

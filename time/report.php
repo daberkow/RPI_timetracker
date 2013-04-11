@@ -15,15 +15,26 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 	<link rel="stylesheet" type="text/css" media="print" href="./print.css" />
-	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
+	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon"/>
+	<style>
+	    .colored{
+		background:#CCCCCC;
+	    }
+	    
+	    .cell {
+		border-width: 0px;
+		border-left-width:1px;
+		border-bottom-width:1px;
+		border-style:solid;
+	    }
+	</style>
 	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
 	<script src="./report.js"></script>
     </head>
     <body onload='loader()'>
 	<div id="main">
 	    <div id="title">
-		<div class="logo"></div>
-		<a href="./index.php"><div id="logo">Time Tracker</div></a>
+		<a href="./index.php"><div class="logo"></div><div id="logo">Time Tracker</div></a>
 		<div id="result"></div>
 	    </div>
 	    <div class="red_bar"></div>
