@@ -148,6 +148,7 @@ class database_helper {
 		 * -2 User tries edit another user but doesnt have privileges
 		 * 
 		 */
+		
 		switch ($passedCalledPriv)
 		{
 			case 0:

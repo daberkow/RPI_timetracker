@@ -129,6 +129,8 @@
 				    echo "<option>Enabled</option><option selected>Disabled</option></select>";
 				}
 				echo "<button onclick='updateuserEmail()'>Submit</button><span id='allEmailAllowUpdate'></span></span></div>";
+				echo "<tr><td>System Wide Name Search</td><td><button onclick='fetchNames();'>Search!</button>(Find first and last names for every user missing them)</td></tr>";
+			    
 				echo "</div><hr style='width:60%; margin: auto;'>";
 
 				echo "<table style='width: 60%; min-width: 600px; margin: auto; text-align: center;'>\n";
@@ -238,10 +240,24 @@
 			    //console.log(data);
 			    //Owners.push($('#ownerAdd').val());
 			    
-			    $("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>" + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
+			    $("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>Fetching  >  " + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
 			    //$("#" + accountType + "s").append("<p>" + $('#' + passedBox).val() + "</p>");
 			    $('#' + accountType + 'Add').val("");
 			    $('#' + accountType + 'Possible').html("");
+			    fetchNames();
+			},
+			error: function(data) {
+			    //console.log(data);
+			}, 
+		    });
+		}
+		
+		function fetchNames() {
+		    order = $.ajax({
+			type: 'POST',
+			url: './ajax.php',
+			data: {type: "nameLookup"},
+			success: function(data) {
 			},
 			error: function(data) {
 			    //console.log(data);
