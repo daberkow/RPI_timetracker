@@ -7,7 +7,7 @@ namespace EmailServer
 {
     class Program
     {
-        private static string MyConString = "SERVER=192.168.182.130;" +
+        private static string MyConString = "SERVER=127.0.0.1;" +
                     "DATABASE=timetracker;" +
                     "UID=timetracker;" +
                     "PASSWORD=DdCyzpALrxndc6BY;";
