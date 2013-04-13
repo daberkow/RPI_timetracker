@@ -2,12 +2,14 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
     <Files>
-      <File FileName="Program.cs" Line="60" Column="20" />
+      <File FileName="Program.cs" Line="28" Column="38" />
+      <File FileName="UserStore.cs" Line="20" Column="28" />
+      <File FileName="GroupStore.cs" Line="19" Column="32" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/home/dan/Project/timetracker/EmailServer/EmailServer/Program.cs" line="29" />
+      <Breakpoint file="/home/dan/Project/timetracker/EmailServer/EmailServer/Program.cs" line="32" />
       <Breakpoint file="/home/dan/Project/timetracker/EmailServer/EmailServer/Program.cs" line="25" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

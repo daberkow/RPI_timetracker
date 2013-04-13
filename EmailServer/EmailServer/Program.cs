@@ -20,10 +20,13 @@ namespace EmailServer
          * 
          */
 
-        static void Main(string[] args)
-        {
-            List<List<string>> EmailJobs = getJobs();
-            List<List<string>> Users = getUsers("1");
+        static void Main (string[] args)
+		{
+			List<List<string>> EmailJobs = getJobs ();// id of email table, groupid, userid, type, setting
+			List<List<string>> Users = getUsers ("1"); //username, group name, group id
+			for (int i = 0; i < Users.Count; i++) {
+				//start converting to user stores
+			}
             string Days = getDays("2");
             //SELECT DATEDIFF(NOW(),(SELECT `submitted` FROM timedata WHERE (((timedata.user)=2)) ORDER BY timedata.submitted DESC LIMIT 0,1));
             Console.Write("test");
