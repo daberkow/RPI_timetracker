@@ -1,0 +1,5 @@
+C:\Users\Dan\Project\timetracker\EmailServer\EmailServer\obj\Debug\EmailServer.csprojResolveAssemblyReference.cache
+C:\Users\Dan\Project\timetracker\EmailServer\EmailServer\bin\Debug\EmailServer.exe
+C:\Users\Dan\Project\timetracker\EmailServer\EmailServer\bin\Debug\EmailServer.pdb
+C:\Users\Dan\Project\timetracker\EmailServer\EmailServer\obj\Debug\EmailServer.exe
+C:\Users\Dan\Project\timetracker\EmailServer\EmailServer\obj\Debug\EmailServer.pdb
