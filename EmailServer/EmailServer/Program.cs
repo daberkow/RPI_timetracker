@@ -20,7 +20,6 @@ namespace EmailServer
                     "PASSWORD=DdCyzpALrxndc6BY;";
 
 
-
         /**
          * Get email group settings, get users, get users who have no logs, check if user should get email, send
          * 
@@ -30,13 +29,35 @@ namespace EmailServer
         static void Main (string[] args)
 		{
 			List<List<string>> EmailJobs = getJobs ();// id of email table, groupid, userid, type, setting
-			
+			if (EmailJobs.Count == 1) {
+				if (EmailJobs[0][0] == "Error"){
+					Console.WriteLine("Error getting data");
+					return;
+				}
+					
+			}
+			List<GroupData> GroupConverted = new List<GroupData>();
 			for (int k = 0; k < EmailJobs.Count; k++) {
-				if (findGroupindex(EmailJobs[k][1], EmailJobs))
+				if (findGroupindex(Int32.Parse(EmailJobs[k][1]), GroupConverted))
 				{
 					//dont add found
 				}else{
 					//Add info to groupData because no group data
+					bool emailoverride = true;
+					bool emailgroup = true;
+					if (EmailJobs[k][4] == "1")
+					{//if the job is overall standard
+						if (EmailJobs[k][3] == "0"){
+							emailgroup = false;
+						}
+					}else{
+						//user allowed override
+						if (EmailJobs[k][3] == "0"){
+							emailoverride = false;
+						}
+					}
+					GroupData tempGroup = new GroupData("",Int32.Parse(EmailJobs[k][1]),emailoverride,emailgroup);
+					GroupConverted.Add(tempGroup);
 				}
 			}
 
@@ -53,9 +74,14 @@ namespace EmailServer
             Console.Write("test");
         }
 
-		public static bool findGroupindex (int passedID, List<List<string>> passedData)
+		public static bool findGroupindex (int passedID, List<GroupData> passedData)
 		{
 			//code this
+			for (int i = 0; i < passedData.Count; i++) {
+				if (passedData[i].intID == passedID)
+					return true;
+			}
+			return false;
 		}
 
         public static List<List<string>> getJobs()//type 2 allows users to have custom setting, type 1 is default for group
@@ -92,7 +118,7 @@ namespace EmailServer
                 }
                 catch { }
                 List<string> row = new List<string>();
-                row.Add("Errror");
+                row.Add("Error");
                 return_data.Add(row);
                 return return_data;
             }

@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="ConsoleTest/Main.cs">
+    <Files>
+      <File FileName="ConsoleTest/Main.cs" Line="8" Column="3" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/home/dan/Project/timetracker/EmailServer/TimeTrackerMail/ConsoleTest/ConsoleTest/Main.cs" line="12" />
+      <Breakpoint file="/home/dan/Project/timetracker/EmailServer/TimeTrackerMail/ConsoleTest/ConsoleTest/Main.cs" line="17" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
