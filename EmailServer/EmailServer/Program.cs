@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using MySql.Data.MySqlClient;
 
+/**
+ *		Program	->GroupData(for group information) 
+ * 			   	->UserStore	->GroupStore
+ * 
+ * 
+ */
+
 namespace EmailServer
 {
     class Program
@@ -23,14 +30,33 @@ namespace EmailServer
         static void Main (string[] args)
 		{
 			List<List<string>> EmailJobs = getJobs ();// id of email table, groupid, userid, type, setting
-			List<List<string>> Users = getUsers ("1"); //username, group name, group id
-			for (int i = 0; i < Users.Count; i++) {
-				//start converting to user stores
+			
+			for (int k = 0; k < EmailJobs.Count; k++) {
+				if (findGroupindex(EmailJobs[k][1], EmailJobs))
+				{
+					//dont add found
+				}else{
+					//Add info to groupData because no group data
+				}
 			}
-            string Days = getDays("2");
+
+			for (int k = 0; k < EmailJobs.Count; k++) {
+				List<List<string>> Users = getUsers (EmailJobs[k][1]); //username, group name, group id
+				for (int i = 0; i < Users.Count; i++) {
+					//start converting to user stores
+					 string Days = getDays("2");
+				}
+			}
+
+           
             //SELECT DATEDIFF(NOW(),(SELECT `submitted` FROM timedata WHERE (((timedata.user)=2)) ORDER BY timedata.submitted DESC LIMIT 0,1));
             Console.Write("test");
         }
+
+		public static bool findGroupindex (int passedID, List<List<string>> passedData)
+		{
+			//code this
+		}
 
         public static List<List<string>> getJobs()//type 2 allows users to have custom setting, type 1 is default for group
         {
