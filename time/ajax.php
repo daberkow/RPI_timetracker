@@ -402,7 +402,7 @@
 		    {
 			$result = database_helper::db_return_array("SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`=1;");
 			//echo "SELECT * FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . $newTime . ") AND `stopTime`<= FROM_UNIXTIME((" . $newTime . " + (60*60*24*14))) AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_escape_string($_REQUEST['group']) . "') AND `status`=1";
-			$users = database_helper::db_return_array("Select `users`.`id`, `users`.`username`, `users`.`fname`, `users`.`lname` FROM `users` LEFT JOIN `groupusers` on `groupusers`.`userid`=`users`.`id` WHERE `groupusers`.`privilege`=1 or `groupusers`.`privilege`=3");
+			$users = database_helper::db_return_array("Select `users`.`id`, `users`.`username`, `users`.`fname`, `users`.`lname` FROM `users` LEFT JOIN `groupusers` on `groupusers`.`userid`=`users`.`id` WHERE `groupusers`.`privilege`=1 or `groupusers`.`privilege`=3 ORDER BY `users`.`username`;");
 			$Final_Array = array();
 			$dayArray = array(); // hey that rhymes
 			foreach($result as $row)
@@ -451,7 +451,7 @@
 				echo "<tr>";
 			    }
 			    $flip = !$flip;
-			    echo "<td>" . $singleUser['fname'] . " " . $singleUser['lname'] . "</td>";
+			    echo "<td>" . $singleUser['lname'] . ", " . $singleUser['fname'] . "</td>";
 			    //itterate through days
 			    $total = 0.0;
 			    for ($k = 0; $k < 14; $k++)

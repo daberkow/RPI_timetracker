@@ -4,6 +4,13 @@ include_once('./cas/CAS.php');
 phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 // SSL!
 phpCAS::setCasServerCACert("./cas/CACert.pem");//this is relative to the cas client.php file
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+	//Windows is different, and you have to call cert differently
+    phpCAS::setCasServerCACert("../CACert.pem");//this is relative to the cas client.php file
+} else {
+    phpCAS::setCasServerCACert("./cas/CACert.pem");//this is relative to the cas client.php file
+}
+
 class database_helper {
 
 	public static function db_connect()
@@ -434,7 +441,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "0.2.0";
+		return "0.2.1";
 	}
 	
 	public static function get_group_page($groupID)
