@@ -441,7 +441,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "0.9";
+		return "0.9.1";
 	}
 	
 	public static function get_group_page($groupID)
