@@ -40,42 +40,42 @@
 	    <div class="red_bar"></div>
 	    <div class="gray_bar"></div>
 	    <div id="working_area">
-		    <?PHP
-			$privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
-			switch($privilege)
-				{
-					case 0:
-						echo "<h3 style='text-align: center'> You are not a member of existing group " . urlencode($_REQUEST['group']) . ", please contact administrator of group to be added</h3>";  
-						break;
-					case 1:
-						echo "<h3 style='text-align: center'> You are a member, but not a administrator, so you can not see reports of group " . urlencode($_REQUEST['group']) . "</h3>";  
-						break;
-					case 2:
-					case 3:
-						$groupInfo = database_helper::db_return_row("SELECT * FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "';");
-						$start_time = timetracker::get_First_day(time());
-						echo "<h2 style='text-align:center;'>" . $groupInfo[0][1] . " </h2>";
-						echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); groupName = '" . urlencode($_REQUEST['group']) . "'</script>";
-						echo "<table style='margin:auto; width: 90%; border-width:1px; border-style:solid;'>
-							<tr>
-								<td style='width: 10%;'><button onclick='lastweek()'><-- Last week</button></td>
-								<td style='text-align: center;' id='weekdescription'></td>
-								<td style='width: 10%; text-align: right;'><button onclick='nextweek()'>Next week --></button></td>
-							</tr>
-							</table>
-							<div id='tableArea' style='margin:auto; width: 90%; border-width:1px; border-style:solid;'>
-							</div>
-							<div style='width: 200px; margin: auto;'><button id='locker' style='width: 200px;' onclick='lock()'>Lock Time Cards</button></div>";
-							
-						break;
-				}
-		    ?>
+	    <?PHP
+		$privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
+		switch($privilege)
+		{
+		    case 0:
+			echo "<h3 style='text-align: center'> You are not a member of existing group " . urlencode($_REQUEST['group']) . ", please contact administrator of group to be added</h3>";  
+			break;
+		    case 1:
+			echo "<h3 style='text-align: center'> You are a member, but not a administrator, so you can not see reports of group " . urlencode($_REQUEST['group']) . "</h3>";  
+			break;
+		    case 2:
+		    case 3:
+			$groupInfo = database_helper::db_return_row("SELECT * FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "';");
+			$start_time = timetracker::get_First_day(time());
+			echo "<h2 style='text-align:center;'>" . $groupInfo[0][1] . " </h2>";
+			echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); groupName = '" . urlencode($_REQUEST['group']) . "'</script>";
+			echo "<table style='margin:auto; width: 90%; border-width:1px; border-style:solid;'>
+				<tr>
+					<td style='width: 10%;'><button onclick='lastweek()'><-- Last week</button></td>
+					<td style='text-align: center;' id='weekdescription'></td>
+					<td style='width: 10%; text-align: right;'><button onclick='nextweek()'>Next week --></button></td>
+				</tr>
+				</table>
+				<div id='tableArea' style='margin:auto; width: 90%; border-width:1px; border-style:solid;'>
+				</div>
+				<div style='width: 200px; margin: auto;'><button id='locker' style='width: 200px;' onclick='lock()'>Lock Time Cards</button></div>";
+				
+			break;
+		}
+	    ?>
 	    </div>
 	    
 	    <!-- NEW SECTION! -->
 	    <hr class='splitter'>
 	    <div id="footer">
-		    <?PHP include("./footer.php"); ?>
+		<?PHP include("./footer.php"); ?>
 	    </div>
 	</div>
     </body>

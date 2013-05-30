@@ -86,7 +86,7 @@
 			    
 			    echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); </script>";
 			    echo "<div style='margin: auto; min-width: 915px;'>";
-			    echo "<div style='width: 100%; height: 35px; margin: auto; min-width: 915px;'><div style='width: 40%; min-width: 320px; display: inline-block;'><button style='width: 40px;' onclick='lastweek();'><--</button> Saved Templates: <select id='templates' style='width: 18%' onclick='loadTemplate()'><option value=0>------</option>";
+			    echo "<div style='width: 100%; height: 35px; margin: auto; min-width: 915px;'><div style='width: 40%; min-width: 320px; display: inline-block;'><button style='width: 80px;' onclick='lastweek();'><-- Previous Week</button> Saved Templates: <select id='templates' style='width: 18%' onclick='loadTemplate()'><option value=0>------</option><option value=-1>Manage Templates</option><option value=0>------</option>";
 			    $templates = database_helper::db_return_array("SELECT * FROM `templates` WHERE `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1");
 			    foreach($templates as $template)
 			    {
@@ -104,7 +104,7 @@
 				echo "</select>";
 			    }
 			    echo "</div><div id='pageStatus' style='display: inline-block; min-width: 185px; width: 19%; text-align: center;'>Synced</div>
-				    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width: 40px;' onclick='nextweek();'>--></button></div></div>";
+				    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width:80px;' onclick='nextweek();'>Next Week --></button></div></div>";
 			    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 			    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";
 			    for($i = 1; $i < 15; $i++)

@@ -648,6 +648,28 @@
 		    }
 		}
 		break;
+	    case "deleteTemplate":
+		if(isset($_REQUEST['templateID']))
+		{
+		    $Users = database_helper::db_return_array("SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'");
+		    if (sizeof($Users) == 1)
+		    {
+			$template = database_helper::db_return_array("SELECT `status` FROM `templates` WHERE `owner`='" . $Users[0][0] . "' AND `id`='" . mysql_real_escape_string($_REQUEST['templateID']) . "'");
+			if (sizeof($template) == 1)
+			{//UPDATE  `timetracker`.`templates` SET  `status` =  '0' WHERE  `templates`.`id` =1;
+			    $result = database_helper::db_insert_query("UPDATE  `timetracker`.`templates` SET  `status` =  '0' WHERE  `templates`.`id` ='" . mysql_real_escape_string($_REQUEST['templateID']) . "';");
+			    echo "deleted";
+			}
+		    }else{
+			echo "ERROR: FINDING USER";
+		    }
+		    
+		    
+		}else{
+		    echo "ERROR: BAD POST";
+		}
+		break;
+		
             default:
                 echo "Error No Type given";
                 break;

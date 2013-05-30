@@ -315,6 +315,9 @@ function loadTemplate()
     }
     if ( parseInt($('#templates').val()) <= 0)
     {
+        if (parseInt($('#templates').val()) == -1) {
+            window.open("./templates.php");
+        }   
         return;
     }
     order = $.ajax({

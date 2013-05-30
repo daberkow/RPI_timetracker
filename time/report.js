@@ -48,20 +48,20 @@ function lock() {
             $("#locker").attr('disabled', 'disabled');
             if (result) {
                 order = $.ajax({
-                type: 'POST',
-                url: './ajax.php',
-                data: {type: 'unLockCards', start_date: sqlDate, group: groupName, end_date: sqlLastDate},
-                success: function(data) {
-                    //console.log(data);
-                    $("#locker").html("Lock Time Cards");
-                    $("#locker").removeAttr("disabled");
-                    $('.colored').css("background", "#CCCCCC");
-                },
-                error: function(data) {
-                    //error calling names
-                    
-                }, 
-            });
+                    type: 'POST',
+                    url: './ajax.php',
+                    data: {type: 'unLockCards', start_date: sqlDate, group: groupName, end_date: sqlLastDate},
+                    success: function(data) {
+                        //console.log(data);
+                        $("#locker").html("Lock Time Cards");
+                        $("#locker").removeAttr("disabled");
+                        $('.colored').css("background", "#CCCCCC");
+                    },
+                    error: function(data) {
+                        //error calling names
+                        
+                    }, 
+                });
             }
             break;
         case "Lock Time Cards":
