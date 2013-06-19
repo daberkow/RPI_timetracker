@@ -15,14 +15,8 @@
         return false;
     }
 
-?>
-
-
-<?PHP
-    if(!isset($_REQUEST['skip']))
+    function check_database()
     {
-        echo("Starting Database check");
-        
         $Error = array();
         
         $UserTable = database_helper::db_return_array("SELECT * FROM  `users`");
@@ -40,7 +34,6 @@
                 }
             }
         }
-        echo "<h4>Checking Groupusers</h4>";
         $Groupusers = database_helper::db_return_array("SELECT * FROM  `groupusers`");
         foreach($Groupusers as $Row)
         {
@@ -62,11 +55,9 @@
             }
             if ($errorlvl > 0)
             {
-                echo "Dropping groupuser row " . $Row['id'] . ", ";
                 $Row['id'] = "kill";
             }
         }
-        echo "<h4>Checking Templates</h4>";
         $Templates = database_helper::db_return_array("SELECT * FROM  `templates`");
         foreach($Templates as $Row)
         {
@@ -91,11 +82,9 @@
             if ($errorlvl > 0)
             {
                 //echo $datasection;
-                echo "Dropping templates row " . $Row['id'] . ", ";
                 $Row['id'] = "kill";
             }
         }
-        echo "<h4>Checking timedata</h4>";
         $timedata = database_helper::db_return_array("SELECT * FROM `timedata`");
         foreach($timedata as $Row)
         {
@@ -113,11 +102,30 @@
             if ($errorlvl > 0)
             {
                 //echo $datasection;
-                echo "Dropping timedata row " . $Row['id'] . ", ";
                 $Row['id'] = "kill";
             }
         }
-        echo "Total Errors ";
+        
+        $Final = array();
+        array_push($Final, $Error);
+        array_push($Final, $UserTable);
+        array_push($Final, $PagesTable);
+        array_push($Final, $Templates);
+        array_push($Final, $Grouptable);
+        array_push($Final, $Groupusers);
+        array_push($Final, $timedata);
+        return $Final;
+    }
+?>
+
+
+<?PHP
+    if(!isset($_REQUEST['skip']))
+    {
+        echo("Starting Database check");
+        
+        $Check = check_database();
+        echo "Total Errors " . sizeof($Check[0]);
         //print_r($Error);
         echo "<h3>Begining Export</h3>";
         echo "<a href='./export.php?skip=true'>Download</a>";
@@ -125,82 +133,9 @@
         //actually export here
         header("Content-type: application/txt; ");
         header("Content-Disposition: attachment; filename=\"Timetracker_export.time\"");      
-        $UserTable = database_helper::db_return_array("SELECT * FROM  `users`");
-        $Grouptable = database_helper::db_return_array("SELECT * FROM  `groups`");
-        $PagesTable = database_helper::db_return_array("SELECt * FROM `pages`");
-        foreach($Grouptable as $Row)
-        {
-            if ($Row['page'] == '0')
-            {
-                array_push($Error, array("Group", $Row['id']));
-            }else{
-                if (!check_item($Row['page'], $PagesTable, "Pages"))
-                {
-                    array_push($Error, array("Page", $Row['id']));
-                }
-            }
-        }
-        $Groupusers = database_helper::db_return_array("SELECT * FROM  `groupusers`");
-        foreach($Groupusers as $Row)
-        {
-            $errorlvl = 0;
-            if (!check_item($Row['userid'], $UserTable, "Users"))
-            {
-                $errorlvl++;
-            }
-             if (!check_item($Row['groupid'], $Grouptable, "Groups"))
-            {
-                $errorlvl++;
-            }
-            if (!(intval($Row['privilege']) >= 0 && intval($Row['privilege']) <= 3))
-            {
-                $errorlvl++;
-            }
-            if ($errorlvl > 0)
-            {
-                $Row['id'] = "kill";
-            }
-        }
-        $Templates = database_helper::db_return_array("SELECT * FROM  `templates`");
-        foreach($Templates as $Row)
-        {
-            $errorlvl = 0;
-            foreach (explode(",", $Row['data']) as $datasection)
-            {
-                if ($datasection != "")
-                {
-                    if (sizeof( explode("_", $datasection)) != 3)
-                    {
-                        $errorlvl++;
-                    }
-                }
-            }
-            if (!check_item($Row['owner'], $UserTable, "Users"))
-            {
-                $errorlvl++;
-            }
-            if ($errorlvl > 0)
-            {
-                $Row['id'] = "kill";
-            }
-        }
-        $timedata = database_helper::db_return_array("SELECT * FROM `timedata`");
-        foreach($timedata as $Row)
-        {
-            $errorlvl = 0;
-            if (!check_item($Row['user'], $UserTable, "Users"))
-            {
-                $errorlvl++;
-            }
-            if (!check_item($Row['group'], $Grouptable, "Group"))
-            {
-                $errorlvl++;
-            }
-            if ($errorlvl > 0)
-            {
-                $Row['id'] = "kill";
-            }
-        }
+ 
+        $Check = check_database();
+        /* [$Error,$UserTable,$PagesTable,$Templates,$Grouptable,$Groupusers,$timedata]*/
         
         //start writing to file, if id is kill dont export, do users, groups, pages, groupusers, templates, timedata
         echo ("[Users]");
