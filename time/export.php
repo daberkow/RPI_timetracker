@@ -131,23 +131,61 @@
         echo "<a href='./export.php?skip=true'>Download</a>";
     }else{
         //actually export here
-        header("Content-type: application/txt; ");
-        header("Content-Disposition: attachment; filename=\"Timetracker_export.time\"");      
+        //header("Content-type: application/txt; ");
+        //header("Content-Disposition: attachment; filename=\"Timetracker_export.time\"");      
  
         $Check = check_database();
         /* [$Error,$UserTable,$PagesTable,$Templates,$Grouptable,$Groupusers,$timedata]*/
         
         //start writing to file, if id is kill dont export, do users, groups, pages, groupusers, templates, timedata
-        echo ("[Users]");
-        foreach($UserTable as $User)
+        echo ("[Users]\n");
+        foreach($Check[1] as $User)
         {
             if($User['id'] != "kill")
             {
-                echo $User['id'] . "," . $User['fname'] . "," . $User['lname'] . "," . $User['username'] . "," . $User['privilege'] . "," . $User['defaultgroup'] . "\r\n";
+                echo $User['id'] . "," . $User['fname'] . "," . $User['lname'] . "," . $User['username'] . "," . $User['privilege'] . "," . $User['defaultgroup'] . "\n";
             }
         }
-        echo "[Groups]";
-        
+        echo "[Pages]\n";
+        foreach($Check[2] as $Page)
+        {
+            if($Page['id'] != "kill")
+            {
+                echo $Page['id'] . "," . $Page['page'] . "," . $Page['data'] . "\n";
+            }
+        }
+        echo "[Templates]\n";
+        foreach($Check[3] as $temp)
+        {
+            if($temp['id'] != "kill")
+            {
+                echo $temp['id'] . "," . $temp['data'] . "," . $temp['name'] . "," . $temp['owner'] . "," . $temp['status'] . "\n";
+            }
+        }
+        echo "[Groups]\n";
+        foreach($Check[4] as $Group)
+        {
+            if($Group['id'] != "kill")
+            {
+                echo $Group['id'] . "," . $Group['name'] . "," . $Group['page'] . "\n";
+            }
+        }
+        echo "[GroupUsers]\n";
+        foreach($Check[5] as $GroupU)
+        {
+            if($GroupU['id'] != "kill")
+            {
+                echo $GroupU['id'] . "," . $GroupU['userid'] . "," . $GroupU['groupid'] . "," . $GroupU['privilege'] . "\n";
+            }
+        }
+        echo "[TimeData]\n";
+        foreach($Check[6] as $Time)
+        {
+            if($Time['id'] != "kill")
+            {
+                echo $Time['id'] . "," . $Time['user'] . "," . $Time['startTime'] . "," . $Time['stopTime'] . "," . $Time['submitted'] . "," . $Time['group'] . "," . $Time['status'] . "\n";
+            }
+        }
     }
   
 ?>
