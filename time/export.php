@@ -117,23 +117,32 @@
         return $Final;
     }
 ?>
-
-
 <?PHP
     if(!isset($_REQUEST['skip']))
     {
-        echo("Starting Database check");
-        
-        $Check = check_database();
-        echo "Total Errors " . sizeof($Check[0]);
-        //print_r($Error);
-        echo "<h3>Begining Export</h3>";
-        echo "<a href='./export.php?skip=true'>Download</a>";
+        if (isset($_REQUEST['import']))
+        {
+            $Data = file_get_contents($_FILES['file']['tmp_name']);
+            $Lines = explode("\n", $Data);
+            //stopped here
+            print_r($Lines);
+        }else{
+            if (isset($_REQUEST['error']))
+            {
+                $Check = check_database();
+                //echo "Total Errors " . sizeof($Check[0]);
+                print_r($Check[0]);
+            }else{
+                $Check = check_database();
+                echo "Total Errors " . sizeof($Check[0]);
+                //echo "<h3>Begining Export</h3>";
+                //echo "<a href='./export.php?skip=true'>Download</a>";
+            }
+        }
     }else{
         //actually export here
-        //header("Content-type: application/txt; ");
-        //header("Content-Disposition: attachment; filename=\"Timetracker_export.time\"");      
- 
+        header("Content-type: application/txt; ");
+        header("Content-Disposition: attachment; filename=\"Timetracker_export.time\"");      
         $Check = check_database();
         /* [$Error,$UserTable,$PagesTable,$Templates,$Grouptable,$Groupusers,$timedata]*/
         
@@ -187,6 +196,4 @@
             }
         }
     }
-  
 ?>
-

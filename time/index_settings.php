@@ -57,6 +57,15 @@
 			    
 			    echo "</table>";
 			    
+			    //This is where import and export goes
+			    echo "<table style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>";
+			    echo "<tr><td style='min-width: 100px;'>Import/Export System Data</td><td style='min-width: 500px;'></td></tr>";
+			    echo "<tr><td>Check Database status</td><td id='dbCheck'><button onclick='scanDB()'>Scan</button></td></tr>";
+			    echo "<tr><td></td><td>Note: If there are errors, the exporter will ignore that data while creating a backup</td></tr>";
+			    echo "<tr><td></td><td><form action='export.php?import=true' method='post' enctype='multipart/form-data'><label for='file'>Filename:</label><input type='file' name='file' id='file'><br><input type='submit' name='submit' value='Submit'></form></td></tr>";
+			    
+			    echo "</table>";
+			    
 			    //not authed
 			    echo "<table style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>\n";
 			    $groupInfo = database_helper::db_return_row("SELECT `data` FROM `pages` WHERE `page`='home'");
@@ -77,6 +86,19 @@
             </div>
             
 	    <script>
+		function scanDB() {
+		    order = $.ajax({
+			type: 'get',
+			url: './export.php',
+			success: function(data) {
+			    $('#dbCheck').html("<a href='./export.php?error=true'>" + data + "</a>");
+			},
+			error: function(data) {
+			    //error calling names
+			}, 
+		    });
+		}
+		
 		function findUser( passedSearchBox, passedFillBox){//ownerAdd
 		    var newHit = new Date().getTime();
 		    if ((newHit - lastHit) < 500)
@@ -103,201 +125,201 @@
 			    //error calling names
 			}, 
 		    });
-	    }
-	    
-	    function check_enter(e, passedBox, passedpriv)
-	    {
-		x = e.keyCode;
-		if (x == 13)
-		{
-		    addtoOwners(passedBox, passedpriv);
 		}
-	    }
 	    
-	    function changeColor(passedarrayPosition)
-	    {
-		if (JSONData["data"].length > 3)
+		function check_enter(e, passedBox, passedpriv)
 		{
-		    jDataLength = 2;
-		}else{
-		    jDataLength = JSONData["data"].length;
-		}
-		for(j = 0; j <= jDataLength; j++)
-		{
-		    if (passedarrayPosition == j)
+		    x = e.keyCode;
+		    if (x == 13)
 		    {
-			$(".Name" + j).css("background", "lightblue");
-			selected = j;
+			addtoOwners(passedBox, passedpriv);
+		    }
+		}
+		
+		function changeColor(passedarrayPosition)
+		{
+		    if (JSONData["data"].length > 3)
+		    {
+			jDataLength = 2;
 		    }else{
-			$(".Name" + j).css("background", "white");
-			selected = j;
+			jDataLength = JSONData["data"].length;
 		    }
-		}
-		
-	    }
-	    
-	    function selectName(passedvalue, passedsearchbox)//add prvilege to this from box
-	    {
-		switch (passedsearchbox)
-		{
-		    case "userAdd":
-			$('#userAdd').val(JSONData["data"][passedvalue].rcsid);
-			addtoOwners('userAdd', 1);
-			break;
-		    case "ownerAdd":
-			$('#ownerAdd').val(JSONData["data"][passedvalue].rcsid);
-			addtoOwners('ownerAdd', 2);
-			break;
-		}
-		
-	    }
-	    
-	    function addtoOwners(passedBox, passedpiv)
-	    {
-		switch (passedBox)
-		{
-		    case "userAdd":
-			accountType = "user";
-			break;
-		    case "ownerAdd":
-			accountType = "owner";
-			break;
-		}
-		order = $.ajax({
-		    type: 'POST',
-		    url: './ajax.php',
-		    data: {type: "addgroupperm", group: "home", username: $('#' + passedBox).val(), priv: passedpiv},
-		    success: function(data) {
-			//console.log(data);
-			//Owners.push($('#ownerAdd').val());
-			
-			$("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>" + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
-			//$("#" + accountType + "s").append("<p>" + $('#' + passedBox).val() + "</p>");
-			$('#' + accountType + 'Add').val("");
-			$('#' + accountType + 'Possible').html("");
-		    },
-		    error: function(data) {
-			//console.log(data);
-		    }, 
-		});
-	    }
-	    
-	    function removeAccount(passedAccount, passedPriv)
-	    {
-		if (passedAccount == "<?PHP echo $user; ?>")
-		{
-		    if (confirm("Are you sure you want to remove privilege from yourself?"))
+		    for(j = 0; j <= jDataLength; j++)
 		    {
-			CodeRun = $.ajax({
-			    type: 'POST',
-			    url: './ajax.php',
-			    data: {type: "removeUser", group: "home", username: passedAccount, priv: passedPriv},
-			    success: function(data) {
-				switch (data)
-				{
-				    //this is switching the new privilege
-				    case "0":
-					$("." + passedAccount + passedPriv).remove();
-					break;
-				    case "1":
-					switch(passedPriv)
-					{
-					    case 1:
-						//this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
-						break;
-					    case 2:
-						//user to be a three and is now a 1
-						$("." + passedAccount + "2").remove();
-						break;
-					}
-					break;
-				    case "2":
-					switch(passedPriv)
-					{
-					    case 1:
-						//was a 3, now is a 2 due to view removed
-						$("." + passedAccount + "2").remove();
-						break;
-					    case 2:
-						//shouldnt happen
-						break;
-					}
-					break;
-				    case "3":
-					//this shouldnt happen if we just removed privilege for anything
-					break;
-				}
-				//console.log(data);
-			    },
-			    error: function(data) {
-				//error calling names
-				//bug no error return
-			    }, 
-			});
+			if (passedarrayPosition == j)
+			{
+			    $(".Name" + j).css("background", "lightblue");
+			    selected = j;
+			}else{
+			    $(".Name" + j).css("background", "white");
+			    selected = j;
+			}
 		    }
-		}else{
-		    CodeRun = $.ajax({
-			    type: 'POST',
-			    url: './ajax.php',
-			    data: {type: "removeUser", group: "home", username: passedAccount, priv: passedPriv},
-			    success: function(data) {
-				switch (data)
-				{
-				    //this is switching the new privilege
-				    case "0":
-					$("." + passedAccount + passedPriv).remove();
-					break;
-				    case "1":
-					switch(passedPriv)
-					{
-					    case 1:
-						//this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
-						break;
-					    case 2:
-						//user to be a three and is now a 1
-						$("." + passedAccount + "2").remove();
-						break;
-					}
-					break;
-				    case "2":
-					switch(passedPriv)
-					{
-					    case 1:
-						//was a 3, now is a 2 due to view removed
-						$("." + passedAccount + "2").remove();
-						break;
-					    case 2:
-						//shouldnt happen
-						break;
-					}
-					break;
-				    case "3":
-					//this shouldnt happen if we just removed privilege for anything
-					break;
-				}
-				//console.log(data);
-			    },
-			    error: function(data) {
-				//error calling names
-				//bug no error return
-			    }, 
-			});
+		    
 		}
-	    }
-	    
-	    function fetchNames() {
-		order = $.ajax({
-		    type: 'POST',
-		    url: './ajax.php',
-		    data: {type: "nameLookup"},
-		    success: function(data) {
-			alert('Name Search Complete');
-		    },
-		    error: function(data) {
-			//console.log(data);
-		    }, 
-		});
-	    }
+		
+		function selectName(passedvalue, passedsearchbox)//add prvilege to this from box
+		{
+		    switch (passedsearchbox)
+		    {
+			case "userAdd":
+			    $('#userAdd').val(JSONData["data"][passedvalue].rcsid);
+			    addtoOwners('userAdd', 1);
+			    break;
+			case "ownerAdd":
+			    $('#ownerAdd').val(JSONData["data"][passedvalue].rcsid);
+			    addtoOwners('ownerAdd', 2);
+			    break;
+		    }
+		    
+		}
+		
+		function addtoOwners(passedBox, passedpiv)
+		{
+		    switch (passedBox)
+		    {
+			case "userAdd":
+			    accountType = "user";
+			    break;
+			case "ownerAdd":
+			    accountType = "owner";
+			    break;
+		    }
+		    order = $.ajax({
+			type: 'POST',
+			url: './ajax.php',
+			data: {type: "addgroupperm", group: "home", username: $('#' + passedBox).val(), priv: passedpiv},
+			success: function(data) {
+			    //console.log(data);
+			    //Owners.push($('#ownerAdd').val());
+			    
+			    $("#" + accountType + "s").append("<tr class='" + $('#' + passedBox).val() + "2'><td></td><td>" + $('#' + passedBox).val() + "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" + $('#' + passedBox).val() + "', 2)\">Remove</span></td></td></tr>");
+			    //$("#" + accountType + "s").append("<p>" + $('#' + passedBox).val() + "</p>");
+			    $('#' + accountType + 'Add').val("");
+			    $('#' + accountType + 'Possible').html("");
+			},
+			error: function(data) {
+			    //console.log(data);
+			}, 
+		    });
+		}
+		
+		function removeAccount(passedAccount, passedPriv)
+		{
+		    if (passedAccount == "<?PHP echo $user; ?>")
+		    {
+			if (confirm("Are you sure you want to remove privilege from yourself?"))
+			{
+			    CodeRun = $.ajax({
+				type: 'POST',
+				url: './ajax.php',
+				data: {type: "removeUser", group: "home", username: passedAccount, priv: passedPriv},
+				success: function(data) {
+				    switch (data)
+				    {
+					//this is switching the new privilege
+					case "0":
+					    $("." + passedAccount + passedPriv).remove();
+					    break;
+					case "1":
+					    switch(passedPriv)
+					    {
+						case 1:
+						    //this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
+						    break;
+						case 2:
+						    //user to be a three and is now a 1
+						    $("." + passedAccount + "2").remove();
+						    break;
+					    }
+					    break;
+					case "2":
+					    switch(passedPriv)
+					    {
+						case 1:
+						    //was a 3, now is a 2 due to view removed
+						    $("." + passedAccount + "2").remove();
+						    break;
+						case 2:
+						    //shouldnt happen
+						    break;
+					    }
+					    break;
+					case "3":
+					    //this shouldnt happen if we just removed privilege for anything
+					    break;
+				    }
+				    //console.log(data);
+				},
+				error: function(data) {
+				    //error calling names
+				    //bug no error return
+				}, 
+			    });
+			}
+		    }else{
+			CodeRun = $.ajax({
+				type: 'POST',
+				url: './ajax.php',
+				data: {type: "removeUser", group: "home", username: passedAccount, priv: passedPriv},
+				success: function(data) {
+				    switch (data)
+				    {
+					//this is switching the new privilege
+					case "0":
+					    $("." + passedAccount + passedPriv).remove();
+					    break;
+					case "1":
+					    switch(passedPriv)
+					    {
+						case 1:
+						    //this means it failed to do it, if my current privilege is 1 and I tried to remvoe it htere was a problem
+						    break;
+						case 2:
+						    //user to be a three and is now a 1
+						    $("." + passedAccount + "2").remove();
+						    break;
+					    }
+					    break;
+					case "2":
+					    switch(passedPriv)
+					    {
+						case 1:
+						    //was a 3, now is a 2 due to view removed
+						    $("." + passedAccount + "2").remove();
+						    break;
+						case 2:
+						    //shouldnt happen
+						    break;
+					    }
+					    break;
+					case "3":
+					    //this shouldnt happen if we just removed privilege for anything
+					    break;
+				    }
+				    //console.log(data);
+				},
+				error: function(data) {
+				    //error calling names
+				    //bug no error return
+				}, 
+			    });
+		    }
+		}
+		
+		function fetchNames() {
+		    order = $.ajax({
+			type: 'POST',
+			url: './ajax.php',
+			data: {type: "nameLookup"},
+			success: function(data) {
+			    alert('Name Search Complete');
+			},
+			error: function(data) {
+			    //console.log(data);
+			}, 
+		    });
+		}
 	    </script>
 	    
             <!-- NEW SECTION! -->
