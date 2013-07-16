@@ -1,5 +1,5 @@
 <?PHP
-
+    //Search using rpi directory app for user info
     if(isset($_REQUEST['q']))
     {
         $context = stream_context_create(array('http' => array('header'=>'Connection: close\r\n')));

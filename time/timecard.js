@@ -1,10 +1,16 @@
 // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
+//This tracks if the time data has been wiped
+
 WipeBegun = 0;
+
+//This is used for shift-control function that never worked right
 shifted = false;
 controled = false;
 last_tapped = "";
 $(document).bind('keyup keydown', function(e){shifted = e.shiftKey} );
 $(document).bind('keyup keydown', function(e){controled = e.ctrlKey} );
+
+//Move the time card to two weeks ago
 function lastweek()
 {
     wipeBoard(false);
@@ -16,7 +22,7 @@ function lastweek()
     }
     loadPage(0);
 }
-
+//Move time card to two weeks from now
 function nextweek()
 {
     wipeBoard(false);
@@ -86,8 +92,7 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed, passedS
             }
         }
         last_tapped = passedDay + "," + passedHour + "," + passedHalf; */  
-        
-        
+        //Now that we are good to punch that clock, hange status and then go
         $('#pageStatus').html("Saving");
         //start_time is first day time in unix timetamp, not javascript
         if (passedHalf == 30)
@@ -96,6 +101,7 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed, passedS
         }else{
             half = 0;
         }
+        //This time slot has not been used yet
         if (typeof(savedData['hour' + passedDay + "_" + passedHour + "_" + half]) == "undefined")
         {
             savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
@@ -122,10 +128,11 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed, passedS
                 punch(passedDay, passedHour, passedHalf, passedTimePassed, 1); 
             }
         }
-        drawDay(passedDay);
+        drawDay(passedDay);//redraw the day and check the boxes
     }
 }
 
+//actually save the data for the punch
 function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime)
 {//database saves in quarters, the javascript currently works in halfs
     var the_day = (parseInt(start_time) + ((passedDay-1) * 60*60*24)) * 1000;
@@ -133,6 +140,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
     CompleteDate.setHours(passedHour);
     CompleteDate.setMinutes(passedTime);
     //this works because the time is being used for one thing and the day is seperate
+    //Also sql likes the dates diffferent so we convert here
     var StartTime = CompleteDate.getHours() + ":" + CompleteDate.getMinutes() + ":" + CompleteDate.getSeconds();
     var FinishedDay = CompleteDate.getFullYear() + '-' + (1+CompleteDate.getMonth()) + '-' + CompleteDate.getDate();
     CompleteDate = new Date(CompleteDate.getTime() + (1000*(60*(parseInt(passedDuration) - 1))));
@@ -180,6 +188,7 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
     }
 }
 
+//this just changes the color of the banner toget the users attention
 function fadeME(tag, start_color)
 {
     the_color = parseInt(start_color, 16) + parseInt("010001", 16);
@@ -197,21 +206,7 @@ function fadeME(tag, start_color)
     }
 }
 
-function submitTimeCard()// we save along the way this isnt needed
-{//here we have savedData and start_time for out information
-    order = $.ajax({
-        type: 'POST',
-        url: './ajax.php',
-        data: {type: 'submitTimeCard'},
-        success: function(data) {
-               
-        },
-        error: function(data) {
-            //error calling names
-        }, 
-    });
-}
-
+//This goes through and loads all the data
 function loadPage(passedRun)
 {
     locked = 0;
@@ -219,6 +214,7 @@ function loadPage(passedRun)
     
 }
 
+//load the page and get the data
 function pageConfig() {
     $('#pageStatus').html("Loading...");
     for (k = 1; k < 15; k++)
@@ -275,6 +271,7 @@ function pageConfig() {
     });
 }
 
+//Save the current hours in the database as a template
 function saveTemplate()
 {
     $('#pageStatus').html("Saving");
@@ -314,11 +311,13 @@ function saveTemplate()
     });
 }
 
+//Say total hours
 function drawDay(passedDay)
 {
     $("#dayTotal" + passedDay).val(savedData['day' + passedDay]);
 }
 
+//Wipe all the hours displayed, true or false is if this is cosmetic or acutally clear database
 function wipeBoard(shouldSave)
 {
     if (shouldSave)
@@ -363,6 +362,7 @@ function wipeBoard(shouldSave)
     
 }
 
+//get the selected tempalte and loads those hours
 function loadTemplate()
 {
     if (locked == 2) {
@@ -409,6 +409,8 @@ function loadTemplate()
     });
 }
 
+//Find the hours that are being used and then save them to the database
+//A macro in the ajax php makes data not need to be passed around
 function save_template_db()
 {
     //This wipebegun code is for a race condition between wiping and saving
@@ -444,6 +446,7 @@ function save_template_db()
     }
 }
 
+//This is where the page status is kept, if a error occurs this is flipped
 function statusChange(passedStatus)
 {
     totalHours = 0.0;
@@ -474,7 +477,7 @@ function statusChange(passedStatus)
     setTimeout(function() {	fadeME("#pageStatus", "00FF00") }, 500 );
 }
 
-
+//This was added so admins can change what user they are and theu function udner the other user
 function selectUser()
 {
     wipeBoard(false);
@@ -535,6 +538,7 @@ function selectUser()
     
 }
 
+//This checks if the weeks have been locked yet
 function check_status() {
     locked = 0;
     var the_day = parseInt(start_time) * 1000;

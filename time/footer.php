@@ -1,5 +1,9 @@
 <div id="Stats">					
     <?PHP
+    /*
+     * This is the footer for each page, centralized
+     *
+     */
     
     	if (phpCAS::isAuthenticated())
 	{

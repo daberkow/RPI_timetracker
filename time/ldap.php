@@ -1,5 +1,5 @@
 <?php
-
+//This uses the schools ldap to lookup names of users
 class LDAP {
     public static function LDAPUIDSEARCH($passedname)
     {

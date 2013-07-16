@@ -1,4 +1,10 @@
 <?PHP
+    /*
+     * This file is currently not used, exporting and database checking worked fine
+     * but I never got databaase importing functioning so this file is just sitting here.
+     *
+     *
+     */
     include("./core.php");
     
     database_helper::db_connect();

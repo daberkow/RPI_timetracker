@@ -1,5 +1,11 @@
 <?PHP
+/*
+ * This file is the core to the application ,every page references this in some way.
+ * Access to the database, an dversion number inforation is also kept here.
+ *
+ */
 
+ //CAS is called here so every page does not need to call, also cert location can easily change
 include_once('./cas/CAS.php');
 phpCAS::client(CAS_VERSION_2_0,'cas-auth.rpi.edu',443,'/cas/');
 // SSL!
@@ -11,8 +17,10 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     phpCAS::setCasServerCACert("./cas/CACert.pem");//this is relative to the cas client.php file
 }
 
+//These functions somehow related to calling databases, it may be jsut a query wrapper or do more work
 class database_helper {
 
+	//Every server connection hits this, and one palce to change login for server
 	public static function db_connect()
 	{
 		if (isset($connected) == false)
@@ -22,6 +30,7 @@ class database_helper {
 		}
 	}
 	
+	//A simple disconnect
 	public static function db_disconnect()
 	{
 		if(isset($connected))
@@ -31,6 +40,7 @@ class database_helper {
 		}
 	}
 	
+	//This allows a user to call a row in a database and things like connecting are already taken care of
 	//same as the array just gets first item only
 	public static function db_return_row($passed_query)
 	{
@@ -53,6 +63,7 @@ class database_helper {
 		}
 	}
 	
+	//Same as the return row, excepts allows for more than one result
 	public static function db_return_array($passed_query)
         {
             database_helper::db_connect();
@@ -86,11 +97,13 @@ class database_helper {
             }
         }
 	
-	
+	//This gets the groups a user is allowed to be in, so that the menu on footer can work
 	public static function db_get_groups($username)
 	{
 		return database_helper::db_return_array("SELECT groups.name FROM groups INNER JOIN (users INNER JOIN groupusers ON users.id = groupusers.userid) ON groups.id = groupusers.groupid WHERE (((users.username)='" . $username . "') AND (groupusers.privilege)>0);");
 	}
+	
+	//Looking to see if a group name is already in use
 	public static function db_scan_for_name($passed_name)
 	{
 		//echo $passed_name;
@@ -125,6 +138,8 @@ class database_helper {
 		return $userInfo[0][0];
 	}
 	
+	//This and the group privilege are used if you want ot check privileges of a user
+	//User privilege is privleges in the entire system, group is just a group
 	public static function db_user_privilege($passed_username)
 	{
 		$return_array = database_helper::db_return_array("SELECT `privilege` FROM `users` WHERE `username`='" . $passed_username . "' LIMIT 0,1;");
@@ -137,6 +152,7 @@ class database_helper {
 		}
 	}
 
+	//Here you feed in a int for the ID and you get the actual user name back
 	public static function db_convert_returnarray_usernames($passed_array)
 	{//this could be optomized for memory
 		$returnedNames = array();
@@ -148,6 +164,7 @@ class database_helper {
 		return $returnedNames;
 	}
 	
+	//Adding a user, and what priv they have, also give the priv of the user creating the account
 	public static function db_add_user_system($passedUsername, $passedPrivilege, $passedCalledPriv)
 	{//This can only be called by passing the privilege of the user calling it
 		/*
@@ -199,11 +216,14 @@ class database_helper {
 		}
 	}
 	
+	//This adds a user to a group, or edits their privleges, you pass in the user preforming the command as well
+	//passign a group of "home" changes the front page privileges
 	public static function db_add_user_group($passedGroup, $passedUsername, $passedPrivilege, $passedCommandingUser)
 	{
 		if ($passedGroup == "home")
 		{
 			$privilege = intval(database_helper::db_user_privilege($passedCommandingUser));
+			//if a user is a system admin, allow them to make new admins
 			if (2 == $privilege)
 			{
 				$workingPriv = intval(database_helper::db_user_privilege($passedUsername));
@@ -339,6 +359,8 @@ class database_helper {
 			return -1;
 		}
 	}
+	
+	//Similar to earlier function but this removes privileges
 	public static function db_remove_priv($passedGroup, $passedUsername, $passedPrivilege, $passedCommandingUser)
 	{
 		if ($passedGroup == "home")
@@ -438,17 +460,14 @@ class database_helper {
 	}
 }
 
+//These functions are just random data that needs to be centrally administered, or used a lot
 class timetracker {
 	public static function get_version()
 	{
 		return "1.00";
 	}
 	
-	public static function get_group_page($groupID)
-	{
-		
-	}
-	
+	//The old payroll was built by counting two week increments, this mimics that
 	public static function get_First_day($date)
 	{
 		$nowDate = $date;
@@ -465,6 +484,7 @@ class timetracker {
 		return $startDate;
 	}
 	
+	//This draws the week for the time cards
 	public static function draw_week()
 	{
 		If (isset($_REQUEST['date']))
@@ -490,6 +510,7 @@ class timetracker {
 		echo "</div></form>";
 	}
 	
+	//Originally there was another interface that allowed sliding of time bars, that was removed but this is still here
 	public function checkOverlap($element1_Start, $element1_stop, $element2_start, $element2_end)
 	{//this is incorrect
 		if ($element1_Start > $element2_start)
@@ -551,6 +572,7 @@ class timetracker {
 		}
 	}
 	
+	//This feature was never truly implemented, a lot of things are commented out
 	public static function groupEmailSetting($groupname, $type)
 	{
 		$privilege = intval(database_helper::db_group_privilege($groupname, phpCAS::getUser()));
@@ -570,7 +592,6 @@ class timetracker {
 	}
 	public function userEmailSetting($groupname)
 	{
-		
 		$result = database_helper::db_return_array("SELECT `setting` FROM `email` WHERE `group`=(SELECT `id` FROM `groups` WHERE `name`='" . $groupname . "' LIMIT 0,1) AND `type`=1 AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' LIMIT 0,1)");
 		if (isset($result[0][0]))
 		{

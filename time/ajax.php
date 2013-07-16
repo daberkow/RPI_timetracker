@@ -1,10 +1,15 @@
 <?PHP
+    //These are fuctions that are called in ajax, soem just redirect to core of do more work
+
     include('./core.php');
     
+    //First check for authentication
     if(phpCAS::isAuthenticated())
     {
+	//dependign on request type switch to that function
         switch($_REQUEST['type'])
         {
+	    //Add permission for a user in a group
             case "addgroupperm":
                 if(isset($_REQUEST['group']) && isset($_REQUEST['username']) && isset($_REQUEST['priv']))
                 {
@@ -34,6 +39,7 @@
 		}
                 
                 break;
+	    //remove a user from a group
 	    case "removeUser"://type: "removeUser", group: Group, username: passedAccount, priv: passedPriv},
 		if(isset($_REQUEST['group']) && isset($_REQUEST['username']) && isset($_REQUEST['priv']))
                 {
@@ -62,6 +68,7 @@
 		    echo "Required parts not sent";
 		}
 		break;
+	    //This is used to update the pages for groups
 	    case "pageUpdate":
 		if (isset($_POST['newPage']) && isset($_REQUEST['group']))
 		{
@@ -117,6 +124,7 @@
 		    echo "no given data";
 		}
 		break;
+	    //Create a new group
 	    case "newGroup":
 		$permission = database_helper::db_user_privilege(phpCAS::getUser());
 		if (intval($permission) >= 1)
@@ -137,6 +145,8 @@
 			    //print_r($group);
 			    //print_r($Users);
 			    //print_r($useradd);
+			    
+			    //if it worked go to the new group
 			    header("Location: ./group.php?group=" . urlencode($_REQUEST['newGroupName']));
 			}
 		    }else{
@@ -145,6 +155,7 @@
 		}
 		break;
 	    
+	    //This is called for each punch of the time clock done
 	    //day: the_day, hour: passedHour, quarter: passedQuarter, punch: passedUsedTime, mode: "half"
 	    case "punchClock":
 		if (isset($_REQUEST['day']) && isset($_REQUEST['end_time']) && isset($_REQUEST['start_time']) && isset($_REQUEST['punch']) && isset($_REQUEST['group']))
@@ -169,6 +180,7 @@
 			    //echo $query;
 			    $RESULT = database_helper::db_return_array($query);
 			    $insert = false;
+			    //make sure that nothing overrides each other, and if it does just update the row
 			    foreach($RESULT as $row)
 			    {
 				//we have times on that day lets see if they overlap the time we are trying to do
@@ -257,6 +269,7 @@
 		    echo "Invalid Post";
 		}
 		break;
+	    //Get time card punches on a new page load
 	    case "getPunches":
 		if (isset($_REQUEST['start_day']) && isset($_REQUEST['group']))
 		{
@@ -280,6 +293,7 @@
 		    echo "Invalid Post";
 		}
 		break;
+	    //Actally save template
 	    case "saveTemplate":
 		if (isset($_REQUEST['dataString']) && isset($_REQUEST['temName']))
 		{
@@ -318,6 +332,7 @@
 		    echo "Invalid Post";
 		}
 		break;
+	    //get selected templates
 	    case "getTemplate":
 		if (isset($_REQUEST['template']))
 		{
@@ -328,6 +343,7 @@
 		    echo "Invalid Post";
 		}
 		break;
+	    //These macros make thigns liek saving tempaltes a lot easier on the database
 	    case "DBMacro":
 		if (isset($_REQUEST['macro_code']) && isset($_REQUEST['group']))
 		{
@@ -399,6 +415,7 @@
 		    echo "Invalid Post";
 		}
 		break;
+	    //this actually makes hte htm for the report
 	    case "printReport":
 		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']))
 		{
@@ -512,6 +529,8 @@
 		    echo "Error invalid post";
 		}
 		break;
+	    
+	    //This locks hte tables making it so no one can add hours after
 	    case "LockCards":
 		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']) && isset($_REQUEST['end_date']))  //start_date: sqlDate, group: groupName,
 		{
@@ -535,6 +554,7 @@
 		    echo "Error Invalid post";
 		}
 		break;
+	    //This undoes it if need to unlock cards
 	    case "unLockCards":
 		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']) && isset($_REQUEST['end_date']))  //start_date: sqlDate, group: groupName, length: 14
 		{
@@ -559,6 +579,7 @@
 		    echo "Error Invalid post";
 		}
 		break;
+	    //This just checked if the cards are locked on loads
 	    case "check_locked":
 		if (isset($_REQUEST['start_date']) && isset($_REQUEST['group']))  //start_date: sqlDate, group: groupName
 		{
@@ -574,6 +595,7 @@
 		    echo "Error Invalid post";
 		}
 		break;
+	    //These were some of the email settings taht never got used
 	    case "updateEmailGroup":
 		database_helper::db_connect();
 		if(isset($_REQUEST['group']) && isset($_REQUEST['setting']) && isset($_REQUEST['EmailSettingtype']))
@@ -593,6 +615,7 @@
 		    echo "Error Invalid post";
 		}
 		break;
+	    //More not used email, the code is still there but there is no email server on the back end
 	    case "updateUserEmail":
 		database_helper::db_connect();
 		if(isset($_REQUEST['group']) && isset($_REQUEST['setting']))
@@ -624,6 +647,7 @@
 		    echo "Error Invalid post";
 		}
 		break;
+	    //Uses ldap to find usernames
 	    case "nameLookup"://this jsut requires any authenticated user
 		if (isset($_REQUEST['username']))
 		{
@@ -656,6 +680,7 @@
 		    }
 		}
 		break;
+	    //Delete tempaltes
 	    case "deleteTemplate":
 		if(isset($_REQUEST['templateID']))
 		{

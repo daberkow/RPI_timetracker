@@ -1,6 +1,11 @@
 <?PHP
     // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
-    
+    /*
+     * This was a experiment to make a basic version that did not need javascript. It got partialy done 
+     * but other issues became more important.
+     *
+     *
+     */
     include('./core.php');
 	
     if(!phpCAS::isAuthenticated())
@@ -14,6 +19,7 @@
 	    header("Location: ./index.php");
 	}
     }**/
+    //PHP still does redirection
 ?>
 
 <html>
@@ -21,10 +27,9 @@
 	<title class = "title">Time Tracker Time Card</title>
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
-	<!--<script src="./jquery-1.6.2.min.js"></script> <!--Only used for easy ajax requests-->
-	<!--<script src="./core.js"></script>-->
     </head>
     <body>
+	<!-- Most of the page is the same as the more advanced on -->
 	<div id="main">
 	    <div id="title">
 		<div class="logo"></div>
@@ -35,6 +40,7 @@
 	    <div class="gray_bar"></div>
 	    <div id="working_area">
 		    <?PHP
+		    //PHP on the server end can still be trusted so having php draw out things is still allowed in basic
 			$privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), time_auth::getUser()));
 			//echo '<h3> ' . $privilege . time_auth::getUser() .  '</h3>';
 			switch($privilege)

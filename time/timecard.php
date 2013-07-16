@@ -1,6 +1,5 @@
 <?PHP
     // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
-    //not converted to time_auth
     include('./core.php');
 
     if(!phpCAS::isAuthenticated())
@@ -16,6 +15,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 	<link href="http://www.rpi.edu/favicon.ico" type="image/ico" rel="icon">
+	    <!-- these styles are used only on this page so entered here -->
 	<style>
 	    .myButton_right{
 	    }
@@ -49,6 +49,7 @@
 	</style>
 	<script src="./static/jquery.js"></script> <!--Only used for easy ajax requests-->
 	<script type="application/x-javascript">
+	    //Transfer some things from php into javascript
 	    pagegroup = '<?PHP echo urlencode($_REQUEST['group']); ?>';
 	    pageuser = '<?PHP echo phpCAS::getUser(); ?>';
 	    pageoverride = false;
@@ -66,6 +67,7 @@
 	    <div class="gray_bar"></div>
 	    <div id="working_area"  style='min-width: 915px;'>
 		<?PHP
+		//Depending on the users permission they can get different interfaces
 		    $privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
 		    switch($privilege)
 		    {
@@ -92,6 +94,7 @@
 				echo "<option value=" . $template['id'] . ">" .  $template['name'] . "</option>";
 			    }
 			    echo "</select>";
+			    //if a user is a admin of the gorup they can enter data under different users with this drop down menu
 			    if ($privilege >= 2)
 			    {
 				echo "Save as User: <select id='SaveAsUser' style='width: 18%;' onclick='selectUser()'><option value=0>------</option>";
@@ -106,6 +109,7 @@
 				    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width:80px;' onclick='nextweek();'>Next Week --></button></div></div>";
 			    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 			    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";
+			    //The area below draws out hte boxes for the time cards
 			    for($i = 1; $i < 15; $i++)
 			    {
 				echo "<div class='timecardDay' id='day" . $i . "'>
@@ -154,18 +158,6 @@
 			    }
 			    echo "</DIV>";
 			    echo "</div></form>";
-			    if (timetracker::groupEmailSetting(urlencode($_REQUEST['group']), 2))
-			    {
-				echo "<div style='margin:auto; text-align:center;'>Email Notifications: <select id='emailNot'>";
-				if (timetracker::userEmailSetting(urlencode($_REQUEST['group']), 1))
-				{
-				    echo "<option selected>Enabled</option><option>Disabled</option></select>";
-				}else{
-				    echo "<option>Enabled</option><option selected>Disabled</option></select>";
-				}
-				
-				echo "<button onclick='updateuserEmail()'>Submit</button><span id='UpdatedEmail'></span></div>";
-			    }
 			    break;
 		    }
 		?>
@@ -174,7 +166,7 @@
 	    <!-- NEW SECTION! -->
 	    <hr>
 	    <div id="footer">
-		    <?PHP include("./footer.php"); ?>
+		<?PHP include("./footer.php"); ?>
 	    </div>
 	    
 	    <script>
@@ -184,7 +176,6 @@
 		    if ($('#emailNot').val() == "Enabled") {
 			settingToSet = 1;
 		    }
-		
 		    order = $.ajax({
 			type: 'POST',
 			url: './ajax.php',

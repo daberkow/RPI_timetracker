@@ -1,5 +1,6 @@
 // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
 
+//This loas up the report
 function loader()
 {
     the_day = parseInt(start_time) * 1000;
@@ -27,6 +28,7 @@ function loader()
     });
 }
 
+//Go back in time!
 function lastweek()
 {
     $('#tableArea').html("");
@@ -34,6 +36,7 @@ function lastweek()
     loader();
 }
 
+//To the future
 function nextweek()
 {
     $('#tableArea').html("");
@@ -41,6 +44,7 @@ function nextweek()
     loader();
 }
 
+//LOCK IT DOWN
 function lock() {
     switch ($("#locker").html()) {
         case "Unlock Time Cards":
@@ -80,15 +84,14 @@ function lock() {
                 },
                 error: function(data) {
                     //error calling names
-                    
                 }, 
             });
             }
             break;
     }
-    
 }
 
+//check if locked
 function check_status() {
     order = $.ajax({
         type: 'POST',
@@ -103,7 +106,6 @@ function check_status() {
         },
         error: function(data) {
             //error calling names
-            
         }, 
     });
 }

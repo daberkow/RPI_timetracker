@@ -1,5 +1,7 @@
 <?PHP
     // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
+    //This is the page that each group has, it loads the page out of the database and puts it in the body.
+    //Then allows the user to see their tiem card, or more priv user to edit hte group or reports
 
     include('./core.php');
 	
@@ -49,7 +51,6 @@
 				    echo urldecode($page[0]['data']);
 				    break;
 			    }
-			
 		    ?>
 	    </div>
 	    

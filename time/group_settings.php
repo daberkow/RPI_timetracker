@@ -1,5 +1,5 @@
 <?PHP
-    
+    //Settings page for groups
     include("./core.php");
     if(!phpCAS::isAuthenticated())
     {
@@ -111,7 +111,7 @@
 				}
 				echo "</table><hr style='width:60%; margin: auto;'>";
 
-				echo "<div style='width: 40%; min-width: 600px; margin:auto;'><span style='width: 240px; display: inline-block;'>Group Email Notifications: </span><span text-align: center;'><select id='emailNotAll'>";
+				/*echo "<div style='width: 40%; min-width: 600px; margin:auto;'><span style='width: 240px; display: inline-block;'>Group Email Notifications: </span><span text-align: center;'><select id='emailNotAll'>";
 				
 				if (timetracker::groupEmailSetting(urlencode($_REQUEST['group']), 1))
 				{
@@ -128,7 +128,7 @@
 				}else{
 				    echo "<option>Enabled</option><option selected>Disabled</option></select>";
 				}
-				echo "<button onclick='updateuserEmail()'>Submit</button><span id='allEmailAllowUpdate'></span></span></div>";
+				echo "<button onclick='updateuserEmail()'>Submit</button><span id='allEmailAllowUpdate'></span></span></div>";*/
 				echo "<tr><td>System Wide Name Search</td><td><button onclick='fetchNames();'>Search!</button>(Find first and last names for every user missing them)</td></tr>";
 			    
 				echo "</div><hr style='width:60%; margin: auto;'>";
