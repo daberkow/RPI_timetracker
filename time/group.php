@@ -41,11 +41,6 @@
 				    echo urldecode($page[0]['data']);
 				    break;
 				case 2:
-				    $groupInfo = database_helper::db_return_row("SELECT * FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "';");
-				    echo "<h2 style='text-align:center;'>" . $groupInfo[0][1] . "-<a href='./group_settings.php?group=" . $groupInfo[0][1] . "'>Edit Group</a>-<a href='./report.php?group=" . $groupInfo[0][1] . "'>Report</a></h2>";
-				    $page = database_helper::db_return_row("SELECT * FROM `pages` WHERE `id`='" . $groupInfo[0][2] . "';");
-				    echo urldecode($page[0]['data']);
-				    break;
 				case 3:
 				    $groupInfo = database_helper::db_return_row("SELECT * FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "';");
 				    echo "<h2 style='text-align:center;'>" . $groupInfo[0][1] . "-<a href='./group_settings.php?group=" . $groupInfo[0][1] . "'>Edit Group</a>-<a href='./report.php?group=" . $groupInfo[0][1] . "'>Report</a></h2>";

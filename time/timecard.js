@@ -1,5 +1,10 @@
 // Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
 WipeBegun = 0;
+shifted = false;
+controled = false;
+last_tapped = "";
+$(document).bind('keyup keydown', function(e){shifted = e.shiftKey} );
+$(document).bind('keyup keydown', function(e){controled = e.ctrlKey} );
 function lastweek()
 {
     wipeBoard(false);
@@ -26,12 +31,63 @@ function nextweek()
 
 
 //this functions are for the grid interface
-function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed)
+function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed, passedSkip)
 {
+    //console.log(passedDay + "," + passedHour + "," + passedHalf);
     if (locked == 2) {
         alert("This time period has been locked");
         return;
     }else{
+        /*This is code so a user can hold control or shift and select multiple time slots, It is not working maybe you can fix logic
+         *
+         *if (!passedSkip &&(shifted || controled)) {
+            if (last_tapped != "") {
+                var splity = last_tapped.split(",");
+                console.log(splity);
+                if (parseInt(passedDay) === parseInt(splity[0])) {
+                    if (parseInt(passedHour) > parseInt(splity[1])) {
+                        //new hour is larger
+                        //from 11_0 to 12_30
+                        console.log("larger");
+                        for (var k = parseInt(splity[1]); k < parseInt(passedHour); k++) {
+                            clockPunch(passedDay,k,'00', '30', true);
+                            clockPunch(passedDay,k,'30', '30', true);
+                        }
+                        if (parseInt(passedHalf) == 30) {
+                            clockPunch(passedDay,passedHour,'00', '30', true);
+                        }
+                    }else{
+                        if (parseInt(passedHour) === parseInt(splity[1])) {
+                            //code
+                            if (parseInt(passedHalf) !== parseInt(splity[2])) {
+                                if (parseInt(passedHalf) == 30) {
+                                    clockPunch(passedDay,passedHour,'00', '30', true);
+                                }else{
+                                    clockPunch(passedDay,passedHour,'30', '30', true);
+                                }
+                            }
+                        }else{
+                             //new hour is smaller
+                             //example ld 10_19_30 to 10_17_0
+                            if (parseInt(splity[2]) == 30) {
+                                clockPunch(passedDay,splity[1],'0', '30', true);
+                                console.log("yesy");
+                            }
+        
+                            for (var k = parseInt(splity[1]) -1; k >= parseInt(passedHour); k--) {
+                                clockPunch(passedDay,k,'30', '30', true);
+                                if (parseInt(passedHalf) == 0) {
+                                clockPunch(passedDay,passedHour,'00', '30', true);
+                                }
+                            }   
+                        }
+                    }
+                }
+            }
+        }
+        last_tapped = passedDay + "," + passedHour + "," + passedHalf; */  
+        
+        
         $('#pageStatus').html("Saving");
         //start_time is first day time in unix timetamp, not javascript
         if (passedHalf == 30)

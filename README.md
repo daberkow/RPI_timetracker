@@ -1,12 +1,12 @@
-RPI_timetracker - Dan Berkowitz - May 2013
+RPI_timetracker - Dan Berkowitz - July 2013
 ===============
 
 Parts that arent finished:
-    Export Import 
-    Email reminders
+    
 
 Back Burner:
     Basic Version
     Print out color cells
     Direct send to payrole
-
+    Export Import 
+    Email reminders

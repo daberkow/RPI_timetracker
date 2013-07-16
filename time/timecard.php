@@ -73,7 +73,6 @@
 			    echo "<h3 style='text-align: center'> You are not a member of existing group " . urlencode($_REQUEST['group']) . ", please contact administrator of group to be added</h3>";  
 			    break;
 			case 2:
-			    echo "<h3 style='text-align: center'> You are a administrator of the group, but not a user</h3>";  
 			case 1:
 			case 3:
 			    //timescard stuff here
@@ -121,14 +120,14 @@
 					{
 					    case 0:
 						echo "<div class='buttonLine'>";
-						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>12:00AM</span>";
-						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>12:30AM</span>";
+						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30', false);\" id='hour" . $i . "_" . $k . "_0'>12:00AM</span>";
+						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30', false);\" id='hour" . $i . "_" . $k . "_2'>12:30AM</span>";
 						echo "</div>\n";
 						break;
 					    default:
 						echo "<div class='buttonLine'>";
-						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>$k:00AM</span>";
-						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>$k:30AM</span>";
+						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30', false);\" id='hour" . $i . "_" . $k . "_0'>$k:00AM</span>";
+						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30', false);\" id='hour" . $i . "_" . $k . "_2'>$k:30AM</span>";
 						echo "</div>\n";
 						break;
 					}
@@ -137,14 +136,14 @@
 					{
 					    case 12:
 						echo "<div class='buttonLine'>";
-						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>12:00PM</span>";
-						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>12:30PM</span>";
+						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30', false);\" id='hour" . $i . "_" . $k . "_0'>12:00PM</span>";
+						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30', false);\" id='hour" . $i . "_" . $k . "_2'>12:30PM</span>";
 						echo "</div>\n";
 						break;
 					    default:
 						echo "<div class='buttonLine'>";
-						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30');\" id='hour" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
-						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30');\" id='hour" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
+						echo "<span class='myButton_left mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','00', '30', false);\" id='hour" . $i . "_" . $k . "_0'>" . ($k - 12) . ":00PM</span>";
+						echo "<span class='myButton_right mybutton' onclick=\"clockPunch('" . $i . "','" . $k . "','30', '30', false);\" id='hour" . $i . "_" . $k . "_2'>" . ($k - 12) . ":30PM</span>";
 						echo "</div>\n";
 						break;
 					}

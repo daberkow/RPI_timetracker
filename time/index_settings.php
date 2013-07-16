@@ -58,13 +58,13 @@
 			    echo "</table>";
 			    
 			    //This is where import and export goes
-			    echo "<table style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>";
+			    /*echo "<table style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>";
 			    echo "<tr><td style='min-width: 100px;'>Import/Export System Data</td><td style='min-width: 500px;'></td></tr>";
 			    echo "<tr><td>Check Database status</td><td id='dbCheck'><button onclick='scanDB()'>Scan</button></td></tr>";
 			    echo "<tr><td></td><td>Note: If there are errors, the exporter will ignore that data while creating a backup</td></tr>";
 			    echo "<tr><td></td><td><form action='export.php?import=true' method='post' enctype='multipart/form-data'><label for='file'>Filename:</label><input type='file' name='file' id='file'><br><input type='submit' name='submit' value='Submit'></form></td></tr>";
-			    
-			    echo "</table>";
+			    //export?skip=true exports data
+			    echo "</table>";*/
 			    
 			    //not authed
 			    echo "<table style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>\n";

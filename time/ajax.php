@@ -129,16 +129,15 @@
 			    //group already exists
 			    header("Location: ./group.php?group=" . urlencode($_REQUEST['newGroupName']));
 			}else{
-			    //Stopped here need to make a new group
 			    $result = database_helper::db_insert_query("INSERT INTO  `timetracker`.`pages` (`id` ,`page`,`data`) VALUES (NULL ,  'group',  \"%3Cdiv%20style%3D'text-align%3Acenter%3B'%3E%3Ch3%3EWelcome%20to%20GROUP%3C%2Fh3%3E%3Ch4%3EAnnouncements%3A%20%3C%2Fh4%3E%3Cp%3E%3C%2Fp%3E%3Ch4%3ELinks%3A%3C%2Fh4%3E%3Cp%3E%3C%2Fp%3E%3C%2Fdiv%3E\");");
 			    $group = database_helper::db_insert_query("INSERT INTO  `timetracker`.`groups` (`id` ,`name`,`page`) VALUES (NULL ,  '" . $_REQUEST['newGroupName'] . "',  '" . $result . "');");
 			    $Users = database_helper::db_return_array("SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'");
 			    $useradd = database_helper::db_insert_query("INSERT INTO `timetracker`.`groupusers` (`id`, `userid`, `groupid`, `privilege`) VALUES (NULL, '" . $Users[0][0] . "', '" . $group . "', '3');");
-			    print_r($result);
-			    print_r($group);
-			    print_r($Users);
-			    print_r($useradd);
-			    //header("Location: ./group.php?group=" . urlencode($_REQUEST['newGroupName']));
+			    //print_r($result);
+			    //print_r($group);
+			    //print_r($Users);
+			    //print_r($useradd);
+			    header("Location: ./group.php?group=" . urlencode($_REQUEST['newGroupName']));
 			}
 		    }else{
 			echo "no group given";
