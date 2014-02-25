@@ -1,22 +1,27 @@
 /* Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, Feb 2012 */
 /* I dont like css */
 
+html {
+	height: auto;
+}
+
 body {
 	width: 98%;
 	background-color: rgb(60,60,60);
 	margin: 0px;
 	margin-left: auto;
 	margin-right: auto;
+	height: auto;
 }
 
 #main {
 	border-style: solid;
 	border-width: 1px;
 	min-width: 955px;
-	width:98%;
 	background-color: white;
 	margin-left: auto;
 	margin-right: auto;
+	height: auto;
 }
 
 div.logo
@@ -97,7 +102,7 @@ hr {
 }
 
 #footer {
-	width: 100%;
+	width: 100% -10px;
 	height: 75px;
 	padding-left: 10px;
 	margin-bottom: 10px;	
@@ -126,6 +131,7 @@ hr {
 
 #working_area {
 	min-height: 500px;
+	height: auto;
 }
 
 .removeButton {

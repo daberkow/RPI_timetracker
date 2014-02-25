@@ -14,7 +14,7 @@
 	$ownerUsernames = database_helper::db_convert_returnarray_usernames($ownersID);
     }
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <title class = "title">Time Tracker Group Settings</title>
@@ -31,6 +31,7 @@
                     <div class="logo"></div>
                     <a href="./index.php"><div id="logo">Time Tracker</div></a>
                     <div id="result"></div>
+		    
             </div>
             <div class="red_bar"></div>
             <div class="gray_bar"></div>
@@ -40,8 +41,8 @@
                     echo "<h2 style='text-align: center'><a style='color: black; text-decoration: none;' href='./index.php'> Home Page Settings </a></h2>";
                     
                         //status 1, check privilage
-		    switch($privilege)
-		    {
+		switch($privilege)
+		{
 			case 2:
 			    echo "<table id='owners' style='width: 70%; min-width: 600px; margin: auto; text-align: center; border-width: 1px; border-style: solid;'>";
 			    //Owners
@@ -81,10 +82,13 @@
 			default:
 			    echo "<h3 style='text-align: center'> You do not have privilege for this page </h3>";
 			    break;
-                    }
-                ?>
+		}
+		?>
+		<hr>
+		<div id="footer">
+			<?PHP include("./footer.php"); ?>
+		</div>
             </div>
-            
 	    <script>
 		function scanDB() {
 		    order = $.ajax({
@@ -321,12 +325,6 @@
 		    });
 		}
 	    </script>
-	    
-            <!-- NEW SECTION! -->
-            <hr>
-            <div id="footer">
-                <?PHP include("./footer.php"); ?>
-            </div>
         </div>
     </body>
 </html>

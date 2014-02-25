@@ -109,7 +109,6 @@
 				{
 				    echo "<tr class='" . $username[0] . "1'><td></td><td>" . $username[1] . " " . $username[2] . " >  " . $username[0] . "<td><span id='remove' class='removeButton' onclick=\"removeAccount('" . $username[0] . "', 1)\">Remove</span></td></td></tr>";
 				}
-				echo "</table><hr style='width:60%; margin: auto;'>";
 
 				/*echo "<div style='width: 40%; min-width: 600px; margin:auto;'><span style='width: 240px; display: inline-block;'>Group Email Notifications: </span><span text-align: center;'><select id='emailNotAll'>";
 				
@@ -129,20 +128,49 @@
 				    echo "<option>Enabled</option><option selected>Disabled</option></select>";
 				}
 				echo "<button onclick='updateuserEmail()'>Submit</button><span id='allEmailAllowUpdate'></span></span></div>";*/
+				echo "<tr><td colspan=3><hr></td></tr>";
 				echo "<tr><td>System Wide Name Search</td><td><button onclick='fetchNames();'>Search!</button>(Find first and last names for every user missing them)</td></tr>";
-			    
-				echo "</div><hr style='width:60%; margin: auto;'>";
-
+				echo "<tr><td colspan=3><hr></td></tr>";
+				echo "<tr><td></td></tr>";
+				
+				$start_time = timetracker::get_First_day(time()) + (60*60*24*14);
+				echo "<tr style='background:red;'><td>User Pay Period Data Purge</td><td colspan=2><select id='payuserdel'><option value=''>Select User</option>";
+				foreach($usersUsernames as $username)
+				{
+				    echo "<option value='$username[0]'>" . $username[0] . "</option>";
+				}
+				echo "</select><select id='payperioddel'>";
+				echo "<option value=''>------Select a pay period-----</option>";
+				echo "<option value=$start_time>" . date('m/d/Y', $start_time) . " to " . date('m/d/Y', $start_time+(60*60*24*14)) . "</option>";
+				$start_time -= (60*60*24*14);
+				echo "<option value=$start_time>" . date('m/d/Y', $start_time) . " to " . date('m/d/Y', $start_time+(60*60*24*14)) . " Cur</option>";
+				$start_time -= (60*60*24*14);
+				echo "<option value=$start_time>" . date('m/d/Y', $start_time) . " to " . date('m/d/Y', $start_time+(60*60*24*14)) . "</option>";
+				$start_time -= (60*60*24*14);
+				echo "<option value=$start_time>" . date('m/d/Y', $start_time) . " to " . date('m/d/Y', $start_time+(60*60*24*14)) . "</option>";
+				
+				echo "</select><button onclick='SubmitPurge();'>Kill Users Data!</button></td></tr>";
+				
+				echo "<tr style='background:red;'><td colspan=3>If a users account looks corrupt, this will clear the selected two week period out, this will do a unrecoverable delete of data from the DB for that user</td></tr>";
+				
+				
+				
+				echo "</table><hr style='width:60%; margin: auto;'>";
+				
 				echo "<table style='width: 60%; min-width: 600px; margin: auto; text-align: center;'>\n";
 				//Users
 				$groupInfo = database_helper::db_return_row("SELECT `data` FROM `pages` WHERE `id`=(SELECT `page` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "')");
 				echo "<tr><td style='width: 15%;'>Group Page(HTML):</td><td style='min-width: 500px; '><form name='input' action='./ajax.php' method='post'><input type='hidden' name='type' value='pageUpdate'><input type='hidden' name='group' value='" . urlencode($_REQUEST['group']) . "'><textarea name='newPage' style='width: 90%; min-height:300px;'>" . urldecode($groupInfo[0][0]) . "</textarea></tr>";
-				echo "<tr><td></td><td><button>Save Changes</button></td></form></tr></table>";
+				echo "<tr><td></td><td><button>Save Changes</button></td></form></tr></table></div>";
 				break;
                         }
                     }
                 ?>
-            </div>
+		<hr>
+		<div id="footer">
+		    <?PHP include("./footer.php"); ?>
+		</div>
+	    </div>
             
 	    <script>
 		function findUser( passedSearchBox, passedFillBox)
@@ -408,13 +436,30 @@
 			}, 
 		    });
 		}
+		function SubmitPurge()
+		{
+		    if ($("#payuserdel").val() == "" || $("#payperioddel").val() == "")
+		    {
+			alert("Not all options selected");
+			return;
+		    }
+		    daty = new Date($("#payperioddel").val() *1000);
+		    if (confirm("Are you sure you want to delete " + $("#payuserdel").val() + " data for pay period starting " + (daty.getMonth()+1) + "/" + daty.getDate()+ "/" + daty.getFullYear()))
+		    {
+			order = $.ajax({
+			    type: 'POST',
+			    url: './ajax.php',
+			    data: {type: "cleanUser_payperiod", group: "<?PHP echo urlencode($_REQUEST['group']); ?>", user: $("#payuserdel").val() , startTime: $("#payperioddel").val()},
+			    success: function(data) {
+				alert(data);
+			    },
+			    error: function(data) {
+				alert("ERROR DELETING");
+			    }, 
+			});
+		    }
+		}
 	    </script>
-	    
-            <!-- NEW SECTION! -->
-            <hr>
-            <div id="footer">
-                <?PHP include("./footer.php"); ?>
-            </div>
         </div>
     </body>
 </html>

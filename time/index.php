@@ -2,7 +2,6 @@
 	// Dan Berkowitz, berkod2@rpi.edu, dansberkowitz@gmail.com, January 2013
 	include('./core.php');
 
-			
 	if(phpCAS::isAuthenticated())
 	{
 		$groupID = database_helper::db_return_row("SELECT `defaultgroup` FROM `users` WHERE `username`='" . phpCAS::getUser() . "' ;");
@@ -54,8 +53,6 @@
 					
 				?>
 			</div>
-			
-			<!-- NEW SECTION! -->
 			<hr>
 			<div id="footer">
 				<?PHP include("./footer.php"); ?>

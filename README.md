@@ -1,4 +1,4 @@
-RPI_timetracker - Dan Berkowitz - July 2013
+RPI_timetracker - Dan Berkowitz - February 2014
 ===============
 
 TROUBLE SHOOTING:
@@ -11,6 +11,11 @@ If you just drop the databse structor into a database, you will have to create a
 make a page called "homeAuth" for authenticed home users. And give a user privilege 2 in the users table so they can create a 
 
 v1.00 - fixed bugs
+v1.01 - bug fixes
+v1.02 - Gui Updates
+v1.03 - Gui Updates, database integrity updates, jquery update, cert update
+	-Ajax.php had limits added to the punch area, so that if error data got into db, only one will be changed going forward
+	-Added a ability for gorup admins to purge user data
 
 Never completed features:
     Basic Version

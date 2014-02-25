@@ -7,8 +7,8 @@ WipeBegun = 0;
 shifted = false;
 controled = false;
 last_tapped = "";
-$(document).bind('keyup keydown', function(e){shifted = e.shiftKey} );
-$(document).bind('keyup keydown', function(e){controled = e.ctrlKey} );
+$(document).bind('keyup keydown', function(e){shifted = e.shiftKey;} );
+$(document).bind('keyup keydown', function(e){controled = e.ctrlKey;} );
 
 //Move the time card to two weeks ago
 function lastweek()
@@ -102,11 +102,11 @@ function clockPunch(passedDay, passedHour, passedHalf, passedTimePassed, passedS
             half = 0;
         }
         //This time slot has not been used yet
-        if (typeof(savedData['hour' + passedDay + "_" + passedHour + "_" + half]) == "undefined")
+        if (typeof(savedData['hour' + passedDay + "_" + passedHour + "_" + half]) === "undefined")
         {
             savedData['hour' + passedDay + "_" + passedHour + "_" + half] = 1;
             $("#hour" + passedDay + "_" + passedHour + "_" + half).css("background-color", "green");
-            if (typeof(savedData['day' + passedDay]) == "undefined")
+            if (typeof(savedData['day' + passedDay]) === "undefined")
             {
                 savedData['day' + passedDay] = 0.5;
             }else{
@@ -152,11 +152,24 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
             data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, override: $('#SaveAsUser').val(), group: pagegroup},
             success: function(data) {
                 //console.log(data);
-                if (data == "Saved")
+                if (data === "Saved")
                 {
                     statusChange(1);
                 }else{
                     //console.log(data);
+		    for(i = 0; i < length(data); i+=5)
+		    {
+			if (data.substr(i).indexOf("Saved") !== 0)
+			{
+			    //Actual error occured
+			    statusChange(2);
+			    return;
+			}else{
+			    //If this is hit, the db has just corrected itself
+			    statusChange(1);
+			}
+			statusChange(1);
+		    }
                     statusChange(2);
                 }
             },
@@ -172,12 +185,22 @@ function punch(passedDay, passedHour, passedTime, passedDuration, passedUsedTime
             data: {type: 'punchClock', day: FinishedDay, start_time: StartTime, end_time: StopTime, punch: passedUsedTime, group: pagegroup},
             success: function(data) {
                 //console.log(data);
-                if (data == "Saved")
+                if (data === "Saved")
                 {
                     statusChange(1);
                 }else{
-                    //console.log(data);
-                    statusChange(2);
+                    for(i = 0; i < length(data); i+=5)
+		    {
+			if (data.substr(i).indexOf("Saved") !== 0)
+			{
+			    //Actual error occured
+			    statusChange(2);
+			    return;
+			}else{
+			    //If this is hit, the db has just corrected itself
+			    statusChange(1);
+			}
+		    }
                 }
             },
             error: function(data) {
@@ -238,14 +261,14 @@ function pageConfig() {
                 IE_Date = IE_Date[0].split("-");
                 plexis = new Date(IE_Date[0], IE_Date[1] - 1, IE_Date[2], IE_Time[0], IE_Time[1], IE_Time[2]);
                 day = Math.floor((plexis.getTime() - origin.getTime() + (60*60*24*1000)) / (60*60*24*1000));
-                if (plexis.getMinutes() == 0)
+                if (plexis.getMinutes() === 0)
                 {
                     half = 0;
                     $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
                     savedData['hour' + day + "_" + plexis.getHours() + "_0"] = 1;
                     savedData['day' + day] += 0.5;
                 }else{
-                    if (plexis.getMinutes() == 30)
+                    if (plexis.getMinutes() === 30)
                     {
                         half = 2;
                         $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
@@ -257,10 +280,10 @@ function pageConfig() {
                 }
                 drawDay(day);
             }
-            if (locked == 2) {
+            if (locked === 2) {
                 statusChange(3);
             }else{
-                if (locked == 3) {
+                if (locked === 3) {
                     statusChange(1);
                 }
             }
@@ -275,7 +298,7 @@ function pageConfig() {
 function saveTemplate()
 {
     $('#pageStatus').html("Saving");
-    if ($('#templateName').val() == "")
+    if ($('#templateName').val() === "")
     {
         alert("Please enter a name for the template");
         return;
@@ -562,4 +585,25 @@ function check_status() {
             
         }, 
     });
+}
+
+function SubmitPurge()
+{
+    daty = new Date(start_time * 1000);
+    if (confirm("Are you sure you want to delete " + $('#SaveAsUser :selected').text() + " data for pay period starting " + (daty.getMonth()+1) + "/" + daty.getDate()+ "/" + daty.getFullYear()))
+    {
+	order = $.ajax({
+	    type: 'POST',
+	    url: './ajax.php',
+	    data: {type: "cleanUser_payperiod", group: pagegroup, user: $('#SaveAsUser :selected').text() , startTime:start_time},
+	    success: function(data) {
+		alert(data + ", Page will reload to your default user");
+		location.reload();
+		
+	    },
+	    error: function(data) {
+		alert("ERROR DELETING");
+	    }, 
+	});
+    }
 }

@@ -58,14 +58,14 @@
 	<script src="./timecard.js"></script>
     </head>
     <body onload='loadPage(0);'>
-	<div id="main">
+	<div id="main" style='min-width: 1180px;'>
 	    <div id="title">
 		<a href="./index.php"><div class="logo"></div><div id="logo">Time Tracker</div></a>
 		<div id="result"></div>
 	    </div>
 	    <div class="red_bar"></div>
 	    <div class="gray_bar"></div>
-	    <div id="working_area"  style='min-width: 915px;'>
+	    <div id="working_area"  style='min-width: 1180px;'>
 		<?PHP
 		//Depending on the users permission they can get different interfaces
 		    $privilege = intval(database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser()));
@@ -86,8 +86,8 @@
 			    }
 			    
 			    echo "<script> start_time = '" . $start_time . "'; savedData = new Array(); </script>";
-			    echo "<div style='margin: auto; min-width: 915px;'>";
-			    echo "<div style='width: 100%; height: 35px; margin: auto; min-width: 915px;'><div style='width: 40%; min-width: 320px; display: inline-block;'><button style='width: 80px;' onclick='lastweek();'><-- Previous Week</button> Saved Templates: <select id='templates' style='width: 18%' onclick='loadTemplate()'><option value=0>------</option><option value=-1>Manage Templates</option><option value=0>------</option>";
+			    echo "<div style='margin: auto; '>";
+			    echo "<div style='width: 100%; height: 40px; margin: auto; min-width: 915px;'><div style='width: 40%; min-width: 320px; display: inline-block;'><button style='width: 80px;' onclick='lastweek();'>Previous Week</button> Saved Templates: <select id='templates' style='width: 18%' onclick='loadTemplate()'><option value=0>------</option><option value=-1>Manage Templates</option><option value=0>------</option>";
 			    $templates = database_helper::db_return_array("SELECT * FROM `templates` WHERE `owner`=(SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "') AND `status`=1");
 			    foreach($templates as $template)
 			    {
@@ -97,16 +97,22 @@
 			    //if a user is a admin of the gorup they can enter data under different users with this drop down menu
 			    if ($privilege >= 2)
 			    {
-				echo "Save as User: <select id='SaveAsUser' style='width: 18%;' onclick='selectUser()'><option value=0>------</option>";
+				echo "Save as User: <select id='SaveAsUser' style='width: 18%;' onchange='selectUser()'><option value=0>------</option>";
 				$Users = database_helper::db_return_array("SELECT users.id, users.username FROM `users` LEFT JOIN `groupusers` ON users.id=groupusers.userid WHERE groupusers.`groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . urlencode($_REQUEST['group']) . "' ) AND (groupusers.`privilege`=1 OR groupusers.`privilege`=3)");
 				foreach($Users as $user)
 				{
-				    echo "<option value=" . $user['id'] . ">" .  $user['username'] . "</option>";
+				    if ($user['username'] == phpCAS::getUser())
+				    {
+					echo "<option selected value=" . $user['id'] . ">" .  $user['username'] . "</option>";
+				    }else{
+					echo "<option value=" . $user['id'] . ">" .  $user['username'] . "</option>";
+				    }
 				}
 				echo "</select>";
+				echo "<button style='background:red;' onclick='SubmitPurge();'>Purge Data in DB</button>";
 			    }
 			    echo "</div><div id='pageStatus' style='display: inline-block; min-width: 185px; width: 19%; text-align: center;'>Synced</div>
-				    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width:80px;' onclick='nextweek();'>Next Week --></button></div></div>";
+				    <div style='width: 40%; min-width: 380px; display: inline-block; text-align: right;'>Save Template: <input id='templateName' type='text'/><button onclick='saveTemplate()'>Save</button></span><button style='width:80px;' onclick='nextweek();'>Next Week</button></div></div>";
 			    echo "<input type='hidden' name='date' value='" . $start_time ."'>";
 			    echo "<DIV id='holder' style='margin: auto; width: 91%;'>";
 			    //The area below draws out hte boxes for the time cards

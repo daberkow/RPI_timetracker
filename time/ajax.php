@@ -167,6 +167,7 @@
 		    $isOpposite = 0;
 		    if (intval($_REQUEST['punch']) == 0)
 		    {
+			//this is undoing a punch, then we look for punches, and reverse them
 			$isOpposite = 1;
 		    }
 		    
@@ -176,7 +177,16 @@
 			if($privilege >= 2)
 			{
 			    //if the db isnt connected, escape strign does not work!
-			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
+			    $query = "";
+			    if ($isOpposite == 0)
+			    {
+				//Here we are looking for where there are no punches so we can punch
+				$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "' LIMIT 0,1;";
+			    
+			    }else{
+				//Here we are looking for where we want to remove a punched time
+				$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`='" . mysql_real_escape_string($_REQUEST['override']) . "' AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
+			    }
 			    //echo $query;
 			    $RESULT = database_helper::db_return_array($query);
 			    $insert = false;
@@ -188,17 +198,18 @@
 				$tail = strtotime($row['stopTime']);
 				$seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['start_time']);
 				$rear_seeker = strtotime($_REQUEST['day'] . " " . $_REQUEST['end_time']);
-				//we are assuming that everyone is using this interface in v0.1
+				//we are assuming that everyone is using this interface in v1
 				if ($front == $seeker)
 				{
 				    if (intval($_REQUEST['punch']) != intval($row['status']))
 				    {
 					//Do update
-					$result = database_helper::db_insert_query("UPDATE  `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
-					if ($result == '0')
+					$result = database_helper::db_insert_query("UPDATE `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
+					if ($result == '0'){
 					    echo "Saved";
-					else
+					}else{
 					    echo "Error";
+					}
 					$insert = true;
 				    }else{
 					//trying to punch again?
@@ -215,15 +226,24 @@
 				if ($result != false){
 				    echo "Saved";
 				    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, '" . mysql_real_escape_string($_REQUEST['override']) . "', '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1','" . mysql_escape_string($_REQUEST['group']) . "');";
-				}else
+				}else{
 				    echo "Error";
+				}
 			    }
 			}else{
 			    //security problem
 			}
 		    }else{
 			//if the db isnt connected, escape strign does not work!
-			$query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
+			$query = "";
+			if ($isOpposite == 0)
+			{
+			    //Here we are looking for where there are no punches so we can punch
+			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "' LIMIT 0,1;";
+			}else{
+			    //Here we are looking for where we want to remove a punched time
+			    $query = "SELECT * FROM  `timedata` WHERE EXTRACT(DAY FROM `startTime`)=" . date('d', strtotime($_REQUEST['day'])) . " AND EXTRACT(MONTH FROM `startTime`)=" . date('m', strtotime($_REQUEST['day'])) . " AND EXTRACT(YEAR FROM `startTime`)=" . date('Y', strtotime($_REQUEST['day'])) . " AND `user`=(SELECT `id` from `users` WHERE `username`='" . phpCAS::getUser() . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "') AND `status`='" . $isOpposite . "';";
+			}
 			//echo $query;
 			$RESULT = database_helper::db_return_array($query);
 			$insert = false;
@@ -241,10 +261,11 @@
 				{
 				    //Do update
 				    $result = database_helper::db_insert_query("UPDATE  `timetracker`.`timedata` SET `status` = " . mysql_real_escape_string($_REQUEST['punch']) . ",`submitted` = now() WHERE  `timedata`.`id`=" . $row['id'] . ";");
-				    if ($result == '0')
+				    if ($result == '0'){
 					echo "Saved";
-				    else
+				    }else{
 					echo "Error";
+				    }
 				    $insert = true;
 				}else{
 				    //trying to punch again?
@@ -259,9 +280,11 @@
 			    $result = database_helper::db_insert_query("INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));");
 			    //echo "INSERT INTO `timetracker`.`timedata` (`id`, `user`, `startTime`, `stopTime`, `submitted`, `status`, `group`) VALUES (NULL, (SELECT `id` FROM `users` WHERE `username`='" . phpCAS::getUser() . "'), '" . $_REQUEST['day'] . " " . $_REQUEST['start_time'] . "', '" . $_REQUEST['day'] . " " . $_REQUEST['end_time'] . "', now(),'1',(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "'));";
 			    if ($result != false)
+			    {
 				echo "Saved";
-			    else
+			    }else{
 				echo "Error";
+			    }
 			}
 		    }
 		    
@@ -702,7 +725,32 @@
 		    echo "ERROR: BAD POST";
 		}
 		break;
-		
+	    case "cleanUser_payperiod":
+		if(isset($_REQUEST['startTime']) && isset($_REQUEST['group']) && isset($_REQUEST['user']))
+		{
+		    $permission = database_helper::db_group_privilege(urlencode($_REQUEST['group']), phpCAS::getUser());
+		    if($permission >=2){
+			$connected = mysql_connect("localhost", "timetracker_mant", "password1") or die("Could Not Connect To MYSQL");
+			mysql_select_db("timetracker") or die ("Could Not Connect to DATABASE");
+			//Here we open a connection to the db with a user only used for maintence
+			
+			$query = "DELETE FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['startTime']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['startTime']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . mysql_escape_string($_REQUEST['user']) . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "');";
+			
+			$result = mysql_query($query);
+			if ($result)
+			{
+			    echo "Deleted Rows: " . mysql_affected_rows();
+			}else{
+			    echo "Error on delete " . $query;
+			}
+			
+		    }else{
+			echo "Not enough permissions";
+		    }
+		}else{
+		    echo "Invalid Post";
+		}
+		break;
             default:
                 echo "Error No Type given";
                 break;

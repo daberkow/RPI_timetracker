@@ -18,14 +18,16 @@ if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 }
 
 //These functions somehow related to calling databases, it may be jsut a query wrapper or do more work
-class database_helper {
+$connected = null;
 
+class database_helper {
+	
 	//Every server connection hits this, and one palce to change login for server
 	public static function db_connect()
 	{
-		if (isset($connected) == false)
+		if (!isset($connected))
 		{
-			mysql_connect("localhost", "timetracker", "DdCyzpALrxndc6BY") or die("Could Not Connect To MYSQL");
+			$connected = mysql_connect("localhost", "timetracker", "DdCyzpALrxndc6BY") or die("Could Not Connect To MYSQL");
 			mysql_select_db("timetracker") or die ("Could Not Connect to DATABASE");
 		}
 	}
@@ -177,7 +179,6 @@ class database_helper {
 		{
 			case 0:
 				return -1;
-				break;
 			case 1:
 				if ($passedPrivilege == 1)
 				{
@@ -199,20 +200,16 @@ class database_helper {
 					case 0:
 						$insertID = database_helper::db_insert_query("INSERT INTO `users`(`username`,`privilege`) VALUES ('" . $passedUsername . "',0);");
 						return $insertID;
-						break;
 					case 1:
 						$insertID = database_helper::db_insert_query("INSERT INTO `users`(`username`,`privilege`) VALUES ('" . $passedUsername . "',1);");
 						return $insertID;
-						break;
 					case 2:
 						$insertID = database_helper::db_insert_query("INSERT INTO `users`(`username`,`privilege`) VALUES ('" . $passedUsername . "',2);");
 						return $insertID;
-						break;
 				}
 				break;
 			default:
 				return -1;
-				break;
 		}
 	}
 	
@@ -257,7 +254,6 @@ class database_helper {
 					case 2:
 						//they already are a super user do nothing
 						return 1;
-						break;
 				}
 			}else{
 				return -1;
@@ -270,7 +266,6 @@ class database_helper {
 					//group doesnt exist
 					//This should not be called
 					return -3;
-					break;
 				case -2:
 					//user doesnt exist
 					//Add user to user database
@@ -278,12 +273,10 @@ class database_helper {
 					database_helper::db_add_user_system($passedUsername, 1, $privilege);
 					$addedResult = database_helper::db_insert_query("INSERT INTO `groupusers`(`userid`,`groupid`, `privilege`) VALUES ((SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "'),(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "'), " . $passedPrivilege . ");");
 					return $addedResult;
-					break;
 				case -1:
 					//user exists but not in group
 					$addedResult = database_helper::db_insert_query("INSERT INTO `groupusers`(`userid`,`groupid`, `privilege`) VALUES ((SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "'),(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "'), " . $passedPrivilege . ");");
 					return $addedResult;
-					break;
 				case 0:
 					//expired user
 					if ($passedPrivilege > 0)
@@ -299,7 +292,6 @@ class database_helper {
 						case 0:
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=0 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return $addedResult;
-							break;//not reachable
 						case 1:
 							//do nothing, nothing has changed
 							break;
@@ -307,11 +299,9 @@ class database_helper {
 							//we are assuming that we are adding this privilage with the other we already have
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=3 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return $addedResult;
-							break;
 						case 3:
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=3 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return $addedResult;
-							break;
 					}
 					break;
 				case 2:
@@ -322,12 +312,10 @@ class database_helper {
 							//disabling account
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=0 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return $addedResult;
-							break;//not reachable
 						case 1:
 							//user is a admin and getting normal rights
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=3 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return $addedResult;
-							break;
 						case 2:
 							//do nothing, already set
 							break;
@@ -343,7 +331,6 @@ class database_helper {
 							//disabling account
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=0 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return $addedResult;
-							break;//not reachable
 						case 1:
 							//user has right
 							break;
@@ -378,15 +365,12 @@ class database_helper {
 							case -1:
 								//user does not exist in the system
 								return 1;
-								break;
 							case 0:
 								//user is disabled
 								return 1;
-								break;
 							case 1:
 								//standard user
 								return 1;
-								break;
 							case 2:
 								//drop down to standard user
 								$result = database_helper::db_insert_query("UPDATE `timetracker`.`users` SET `privilege`=1 WHERE `username`='" . $passedUsername . "';");
@@ -410,22 +394,17 @@ class database_helper {
 			{//switch depending what privilege the user currently has
 				case -3:
 					return -3;
-					break;
 				case -2:
 					return -2;
-					break;
 				case -1:
 					return -1;
-					break;
 				case 0:
 					return 0;
-					break;
 				case 1:
 					if ($passedPrivilege == 1)
 					{
 						$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=0 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 						return 0;
-						break;//not reachable
 					}
 					break;
 				case 2:
@@ -434,11 +413,9 @@ class database_helper {
 						//switching to the new privilege to be removed
 						case 1:
 							return 2;
-							break;
 						case 2:
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=0 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return 0;
-							break;
 					}
 					break;
 				case 3:
@@ -448,11 +425,9 @@ class database_helper {
 						case 1:
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=2 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return 2;
-							break;
 						case 2:
 							$addedResult = database_helper::db_insert_query("UPDATE `groupusers` SET `privilege`=1 WHERE `userid`=(SELECT `id` FROM `users` WHERE `username`='" . $passedUsername . "') AND `groupid`=(SELECT `id` FROM `groups` WHERE `name`='" . $passedGroup . "')");
 							return 1;
-							break;
 					}
 					break;
 			}
@@ -464,7 +439,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "1.01";
+		return "1.03";
 	}
 	
 	//The old payroll was built by counting two week increments, this mimics that
@@ -616,5 +591,20 @@ class timetracker {
 		
 	}
 }
-
+/***
+ * Permissions:
+ *  I dont think I wrote down anywhere what permissions mean what, so that will go here
+ * 
+ * I the general user table, there is a global priv, 0 is a diabled user, 1 is a standard user, 2 is a admin
+ * 0: User cant login to the system
+ * 1: Most users
+ * 2: A admin who can make new groups of change login page
+ * 
+ * Group Specific
+ * 0-3
+ * 0: A disabled user
+ * 1: a standard user
+ * 2: a admin of the group, but does not have their own time card
+ * 3 = 2 + 1
+ */
 ?>
