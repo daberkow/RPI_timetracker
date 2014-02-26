@@ -16,6 +16,8 @@ v1.02 - Gui Updates
 v1.03 - Gui Updates, database integrity updates, jquery update, cert update
 	-Ajax.php had limits added to the punch area, so that if error data got into db, only one will be changed going forward
 	-Added a ability for gorup admins to purge user data
+v1.04 - Fixed Error in core for group_settings, fixed mysql_escape used
+v1.05 - Fixed change week draw bug
 
 Never completed features:
     Basic Version
