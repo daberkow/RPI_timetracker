@@ -17,10 +17,10 @@ function lastweek()
     start_time = parseInt(start_time) - (60*60*24*14);
     for (i = 1; i <= 14; i++)
     {
-        var d = new Date((start_time * 1000) + ((i-1)*(60*60*24*1000)));
+        var d = new Date((start_time * 1000) + ((i -1)*(60*60*24*1000)));
         $(".day" + i + "Name").html((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
     }
-    loadPage(0);
+    loadPage();
 }
 //Move time card to two weeks from now
 function nextweek()
@@ -29,10 +29,10 @@ function nextweek()
     start_time = parseInt(start_time) + (60*60*24*14);
     for (i = 1; i <= 14; i++)
     {
-        var d = new Date((start_time * 1000) + ((i-1)*(60*60*24*1000)));
+        var d = new Date((start_time * 1000) + ((i -1)*(60*60*24*1000)));
         $(".day" + i + "Name").html((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
     }
-    loadPage(0);
+    loadPage();
 }
 
 
@@ -230,7 +230,7 @@ function fadeME(tag, start_color)
 }
 
 //This goes through and loads all the data
-function loadPage(passedRun)
+function loadPage()
 {
     locked = 0;
     check_status();
@@ -240,7 +240,7 @@ function loadPage(passedRun)
 //load the page and get the data
 function pageConfig() {
     $('#pageStatus').html("Loading...");
-    for (k = 1; k < 15; k++)
+    for (k = 1; k <= 14; k++)
     {
         savedData['day' + k] = 0;
         drawDay(k);

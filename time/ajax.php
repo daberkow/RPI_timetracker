@@ -734,7 +734,7 @@
 			mysql_select_db("timetracker") or die ("Could Not Connect to DATABASE");
 			//Here we open a connection to the db with a user only used for maintence
 			
-			$query = "DELETE FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['startTime']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['startTime']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . mysql_escape_string($_REQUEST['user']) . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "');";
+			$query = "DELETE FROM `timedata` WHERE `startTime`>=FROM_UNIXTIME(" . mysql_real_escape_string($_REQUEST['startTime']) . ") AND `stopTime`<= FROM_UNIXTIME((" . mysql_real_escape_string($_REQUEST['startTime']) . " + (60*60*24*14))) AND `user`=(SELECT `id` FROM `users` WHERE `username`='" . mysql_real_escape_string($_REQUEST['user']) . "') AND `group`=(SELECT `id` FROM `groups` WHERE `name`='" . mysql_real_escape_string($_REQUEST['group']) . "');";
 			
 			$result = mysql_query($query);
 			if ($result)

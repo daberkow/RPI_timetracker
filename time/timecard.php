@@ -57,7 +57,7 @@
 	</script>
 	<script src="./timecard.js"></script>
     </head>
-    <body onload='loadPage(0);'>
+    <body onload='loadPage();'>
 	<div id="main" style='min-width: 1180px;'>
 	    <div id="title">
 		<a href="./index.php"><div class="logo"></div><div id="logo">Time Tracker</div></a>

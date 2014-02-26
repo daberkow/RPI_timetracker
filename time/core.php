@@ -161,7 +161,10 @@ class database_helper {
 		for($i = 0; $i < sizeof($passed_array); $i++)
 		{
 			$temp_array = database_helper::db_return_row("SELECT username, fname, lname FROM `users` WHERE `id`=" . $passed_array[$i][0] . ";");
-			array_push($returnedNames, $temp_array[0]);
+			if (sizeof($temp_array) > 0)
+			{
+			    array_push($returnedNames, $temp_array[0]);
+			}
 		}
 		return $returnedNames;
 	}
@@ -439,7 +442,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "1.03";
+		return "1.05";
 	}
 	
 	//The old payroll was built by counting two week increments, this mimics that
