@@ -247,51 +247,99 @@ function pageConfig() {
     }
     
     origin = new Date(start_time * 1000);
-    order = $.ajax({
-        type: 'POST',
-        url: './ajax.php',
-        data: {type: 'getPunches', group: pagegroup, start_day: start_time},
-        success: function(data) {
-            parsedJson = JSON.parse(data);
-            for (i = 0; i < parsedJson.length; i++)
-            {
-                IE_Fix_String = parsedJson[i]['startTime'];
-                IE_Date = IE_Fix_String.split(" ");
-                IE_Time = IE_Date[1].split(":");
-                IE_Date = IE_Date[0].split("-");
-                plexis = new Date(IE_Date[0], IE_Date[1] - 1, IE_Date[2], IE_Time[0], IE_Time[1], IE_Time[2]);
-                day = Math.floor((plexis.getTime() - origin.getTime() + (60*60*24*1000)) / (60*60*24*1000));
-                if (plexis.getMinutes() === 0)
-                {
-                    half = 0;
-                    $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
-                    savedData['hour' + day + "_" + plexis.getHours() + "_0"] = 1;
-                    savedData['day' + day] += 0.5;
-                }else{
-                    if (plexis.getMinutes() === 30)
-                    {
-                        half = 2;
-                        $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
-                        savedData['hour' + day + "_" + plexis.getHours() + "_2"] = 1;
-                        savedData['day' + day] += 0.5;
-                    }else{
-                        //half = 1;
-                    }
-                }
-                drawDay(day);
-            }
-            if (locked === 2) {
-                statusChange(3);
-            }else{
-                if (locked === 3) {
-                    statusChange(1);
-                }
-            }
-        },
-        error: function(data) {
-            //error calling names
-        }, 
-    });
+    if (pageoverride){
+	order = $.ajax({
+		type: 'POST',
+		url: './ajax.php',
+		data: {type: 'getPunches', group: pagegroup, start_day: start_time, override: $('#SaveAsUser').val()},
+		success: function(data) {
+		    parsedJson = JSON.parse(data);
+		    for (i = 0; i < parsedJson.length; i++)
+		    {
+			IE_Fix_String = parsedJson[i]['startTime'];
+			IE_Date = IE_Fix_String.split(" ");
+			IE_Time = IE_Date[1].split(":");
+			IE_Date = IE_Date[0].split("-");
+			plexis = new Date(IE_Date[0], IE_Date[1] - 1, IE_Date[2], IE_Time[0], IE_Time[1], IE_Time[2]);
+			day = Math.floor((plexis.getTime() - origin.getTime() + (60*60*24*1000)) / (60*60*24*1000));
+			if (plexis.getMinutes() === 0)
+			{
+			    half = 0;
+			    $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+			    savedData['hour' + day + "_" + plexis.getHours() + "_0"] = 1;
+			    savedData['day' + day] += 0.5;
+			}else{
+			    if (plexis.getMinutes() === 30)
+			    {
+				half = 2;
+				$("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+				savedData['hour' + day + "_" + plexis.getHours() + "_2"] = 1;
+				savedData['day' + day] += 0.5;
+			    }else{
+				//half = 1;
+			    }
+			}
+			drawDay(day);
+		    }
+		    if (locked === 2) {
+			statusChange(3);
+		    }else{
+			if (locked === 3) {
+			    statusChange(1);
+			}
+		    }
+		},
+		error: function(data) {
+		    //error calling names
+		}, 
+	    });
+    }else{
+	order = $.ajax({
+	    type: 'POST',
+	    url: './ajax.php',
+	    data: {type: 'getPunches', group: pagegroup, start_day: start_time},
+	    success: function(data) {
+		parsedJson = JSON.parse(data);
+		for (i = 0; i < parsedJson.length; i++)
+		{
+		    IE_Fix_String = parsedJson[i]['startTime'];
+		    IE_Date = IE_Fix_String.split(" ");
+		    IE_Time = IE_Date[1].split(":");
+		    IE_Date = IE_Date[0].split("-");
+		    plexis = new Date(IE_Date[0], IE_Date[1] - 1, IE_Date[2], IE_Time[0], IE_Time[1], IE_Time[2]);
+		    day = Math.floor((plexis.getTime() - origin.getTime() + (60*60*24*1000)) / (60*60*24*1000));
+		    if (plexis.getMinutes() === 0)
+		    {
+			half = 0;
+			$("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+			savedData['hour' + day + "_" + plexis.getHours() + "_0"] = 1;
+			savedData['day' + day] += 0.5;
+		    }else{
+			if (plexis.getMinutes() === 30)
+			{
+			    half = 2;
+			    $("#hour" + day + "_" + plexis.getHours() + "_" + half).css("background-color", "green");
+			    savedData['hour' + day + "_" + plexis.getHours() + "_2"] = 1;
+			    savedData['day' + day] += 0.5;
+			}else{
+			    //half = 1;
+			}
+		    }
+		    drawDay(day);
+		}
+		if (locked === 2) {
+		    statusChange(3);
+		}else{
+		    if (locked === 3) {
+			statusChange(1);
+		    }
+		}
+	    },
+	    error: function(data) {
+		//error calling names
+	    }, 
+	});
+    }
 }
 
 //Save the current hours in the database as a template

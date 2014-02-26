@@ -442,7 +442,7 @@ class database_helper {
 class timetracker {
 	public static function get_version()
 	{
-		return "1.05";
+		return "1.06";
 	}
 	
 	//The old payroll was built by counting two week increments, this mimics that

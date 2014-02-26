@@ -20,6 +20,7 @@ v1.03 - Gui Updates, database integrity updates, jquery update, cert update
 	-Added a ability for group admins to purge user data
 v1.04 - Fixed Error in core for group_settings, fixed mysql_escape used
 v1.05 - Fixed change week draw bug
+v1.06 - Admins changing date-zones under other users could not load other dates data in timecard view
 
 Never completed features:
     Basic Version
